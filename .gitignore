@@ -3,12 +3,13 @@
 build/
 DerivedData/
 
-# Xcode project files
-*.xcodeproj/project.xcworkspace
-*.xcodeproj/xcuserdata
-*.xcworkspace
+# Xcode project user data
+*.xcodeproj/project.xcworkspace/
+*.xcodeproj/xcuserdata/
 
 # Swift Package Manager
+.build/
+Packages/
 .swiftpm/
 
 # Environment configs
