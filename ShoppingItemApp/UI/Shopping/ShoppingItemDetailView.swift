@@ -37,13 +37,9 @@ struct ShoppingItemDetailView: View {
                 Button("Save") {
                     Task {
                         if isNewItem {
-                            // In a real app, you'd call viewModel.addShoppingItem(item)
-                            viewModel.shoppingItems.append(item)
+                            await viewModel.addShoppingItem(item)
                         } else {
-                            // In a real app, you'd call viewModel.updateShoppingItem(item)
-                            if let index = viewModel.shoppingItems.firstIndex(where: { $0.id == item.id }) {
-                                viewModel.shoppingItems[index] = item
-                            }
+                            await viewModel.updateShoppingItem(item)
                         }
                         dismiss()
                     }

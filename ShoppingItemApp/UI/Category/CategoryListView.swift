@@ -9,7 +9,7 @@ struct CategoryListView: View {
     var body: some View {
         NavigationView {
             List {
-                ForEach(viewModel.categories) { category in
+                ForEach(viewModel.categories.loadedValue ?? []) { category in
                     HStack {
                         Text(category.name)
                         Spacer()
@@ -44,8 +44,12 @@ struct CategoryListView: View {
     private func deleteCategory(at offsets: IndexSet) {
         // In a real app, you would call viewModel.deleteCategory
         offsets.forEach { index in
+            guard let loaded = viewModel.categories.loadedValue,
+                    index < loaded.count else {
+                return
+            }
             Task {
-                await viewModel.deleteCategory(viewModel.categories[index])
+                await viewModel.deleteCategory(loaded[index])
             }
         }
     }
