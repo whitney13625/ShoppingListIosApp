@@ -1,0 +1,16 @@
+# Xcode
+.DS_Store
+build/
+DerivedData/
+
+# Xcode project files
+*.xcodeproj/project.xcworkspace
+*.xcodeproj/xcuserdata
+*.xcworkspace
+
+# Swift Package Manager
+.swiftpm/
+
+# Environment configs
+ShoppingItemApp/Config/Environment.xcconfig
+ShoppingItemApp/Config/Environment-Local.xcconfig
