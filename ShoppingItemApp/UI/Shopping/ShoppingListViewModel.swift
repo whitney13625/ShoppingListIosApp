@@ -20,10 +20,18 @@ class ShoppingListViewModel: ObservableObject {
         await fetchShoppingItems()
     }
     
-    @MainActor
     func fetchShoppingItems() async {
-        await self.shoppingItems.load {
-            try await networkService.fetchShoppingItems()
+        await MainActor.run {
+            self.shoppingItems.startLoading()
+        }
+        
+        Task {
+            let result = await Loading.from {
+                try await self.networkService.fetchShoppingItems()
+            }
+            await MainActor.run {
+                self.shoppingItems = result
+            }
         }
     }
     
@@ -43,10 +51,19 @@ class ShoppingListViewModel: ObservableObject {
         }
     }
     
-    @MainActor
+    // New: Fetch categories
     func fetchCategories() async {
-        await self.categories.load {
-            try await networkService.fetchCategories()
+        await MainActor.run {
+            self.categories.startLoading()
+        }
+        
+        Task {
+            let result = await Loading.from {
+                try await self.networkService.fetchCategories()
+            }
+            await MainActor.run {
+                self.categories = result
+            }
         }
     }
     
