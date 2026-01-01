@@ -21,7 +21,7 @@ struct ShoppingItemDetailView: View {
     }
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             Form {
                 Section(header: Text("Item Details")) {
                     TextField("Item Name", text: $item.name)

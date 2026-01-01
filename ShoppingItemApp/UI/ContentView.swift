@@ -7,7 +7,7 @@ struct ContentView: View {
     @State private var showingCategoryListSheet = false // New state variable
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             shoppingList
                 .navigationTitle("Shopping List")
                 .toolbar {
