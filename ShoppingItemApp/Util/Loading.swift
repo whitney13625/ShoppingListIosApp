@@ -21,10 +21,15 @@ extension Loading {
     
     mutating func load(_ fn: () async throws -> T) async {
         do {
-            self = .loaded(try await fn())
+            let result = try await fn()
+            await MainActor.run {
+                self = .loaded(result)
+            }
         }
         catch {
-            self = .error(error)
+            await MainActor.run {
+                self = .error(error)
+            }
         }
     }
     

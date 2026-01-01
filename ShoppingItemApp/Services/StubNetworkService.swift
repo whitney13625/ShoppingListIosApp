@@ -2,8 +2,6 @@ import Foundation
 
 class StubNetworkService: NetworkService {
     
-    private let fruitCategory = Category(id: UUID().uuidString, name: "Fruits")
-    
     private var categories: [Category]
     private var shoppingItems: [ShoppingItem]
     
@@ -26,7 +24,6 @@ class StubNetworkService: NetworkService {
     
     func fetchShoppingItems() async throws -> [ShoppingItem] {
         try await Task.sleep(for: .seconds(3))
-        let mockCategory = Category(id: UUID().uuidString, name: "Fruits")
         return shoppingItems
     }
     
