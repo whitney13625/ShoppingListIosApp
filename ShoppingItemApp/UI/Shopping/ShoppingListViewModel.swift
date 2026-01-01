@@ -6,9 +6,10 @@ class ShoppingListViewModel: ObservableObject {
     @Published var shoppingItems: Loading<[ShoppingItem]> = .notLoaded
     @Published var categories:  Loading<[Category]> = .notLoaded
     
-    private let networkService = StubNetworkService()
+    private let networkService: NetworkService
     
-    init() {
+    init(networkService: NetworkService = ConnectToServerNetworkService()) {
+        self.networkService = networkService
         Task {
             await reload()
         }
@@ -19,6 +20,7 @@ class ShoppingListViewModel: ObservableObject {
         await fetchShoppingItems()
     }
     
+    @MainActor
     func fetchShoppingItems() async {
         await self.shoppingItems.load {
             try await networkService.fetchShoppingItems()
@@ -41,14 +43,13 @@ class ShoppingListViewModel: ObservableObject {
         }
     }
     
-    // New: Fetch categories
+    @MainActor
     func fetchCategories() async {
         await self.categories.load {
             try await networkService.fetchCategories()
         }
     }
     
-    // New: Add category
     func addCategory(_ category: Category) async {
         do {
             _ = try await networkService.addCategory(category)

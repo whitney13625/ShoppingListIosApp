@@ -9,6 +9,8 @@ enum NetworkError: Error {
     case noData
 }
 
+
+
 enum HTTPMethod {
     case GET
     case POST
@@ -56,7 +58,7 @@ class Http {
         return try await executeRequest(request)
     }
 
-    func executeRequest<U: Codable>(_ request: URLRequest) async throws -> U {
+    private func executeRequest<U: Codable>(_ request: URLRequest) async throws -> U {
         let (data, response) = try await URLSession.shared.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse,
