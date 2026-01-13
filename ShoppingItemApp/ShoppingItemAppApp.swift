@@ -10,15 +10,22 @@ import SwiftUI
 @main
 struct ShoppingItemAppApp: App {
     
-    @StateObject private var loginViewModel = LoginViewModel()
+    @State private var appState = AppState()
     
     var body: some Scene {
         WindowGroup {
+            /*
             if loginViewModel.isAuthenticated {
                 ContentView()
             } else {
                 LoginView(viewModel: loginViewModel)
             }
+             */
+            RootView()
+                .environment(appState) // Injection happens here
+                .task {
+                    await appState.bootstrap()
+                }
         }
     }
 }

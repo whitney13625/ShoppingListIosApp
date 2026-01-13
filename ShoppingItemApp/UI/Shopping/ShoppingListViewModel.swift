@@ -8,9 +8,10 @@ class ShoppingListViewModel: ObservableObject {
     @Published var shoppingItems: Loading<[ShoppingItem]> = .notLoaded
     @Published var categories:  Loading<[Category]> = .notLoaded
     
-    private let networkService = StubNetworkService()
+    private let networkService: NetworkService
     
-    init() {
+    init(networkService: NetworkService) {
+        self.networkService = networkService
         $__shoppingItems.uiSafeCopy(to: &$shoppingItems)
         $__categories.uiSafeCopy(to: &$categories)
         reload()

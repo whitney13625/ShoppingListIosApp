@@ -14,8 +14,9 @@ struct ShoppingItemDetailView: View {
         Category(id: UUID().uuidString, name: "Meat")
     ]
     
-    init(viewModel: ShoppingListViewModel, shoppingItem: ShoppingItem? = nil) {
-        self.viewModel = viewModel
+    init(appState: AppState, shoppingItem: ShoppingItem? = nil) {
+        // One line of assembly. Clean and readable.
+        _viewModel = ObservedObject(initialValue: appState.makeShoppingListViewModel())
         _item = State(initialValue: shoppingItem ?? ShoppingItem(id: UUID().uuidString, name: "", quantity: 1, category: Category(id: UUID().uuidString, name: "Uncategorized")))
         _isNewItem = State(initialValue: shoppingItem == nil)
     }
@@ -65,5 +66,5 @@ extension Category: Equatable {
 }
 
 #Preview {
-    ShoppingItemDetailView(viewModel: ShoppingListViewModel())
+    ShoppingItemDetailView(appState: .stub)
 }

@@ -6,6 +6,10 @@ struct CategoryListView: View {
     @State private var showingAddCategorySheet = false
     @State private var categoryToEdit: Category?
     
+    init(appState: AppState) {
+        _viewModel = ObservedObject(initialValue: appState.makeShoppingListViewModel())
+    }
+    
     var body: some View {
         NavigationView {
             List {
@@ -97,5 +101,5 @@ struct AddEditCategoryView: View {
 }
 
 #Preview {
-    CategoryListView(viewModel: ShoppingListViewModel())
+    CategoryListView(appState: .stub)
 }

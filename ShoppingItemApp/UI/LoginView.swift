@@ -9,7 +9,12 @@ import SwiftUI
 
 struct LoginView: View {
     
+    @Environment(AppState.self) private var appState
     @ObservedObject var viewModel: LoginViewModel
+
+    init(appState: AppState) {
+        _viewModel = ObservedObject(initialValue: appState.makeLoginViewModel())
+    }
     
     var body: some View {
         VStack {
@@ -46,6 +51,8 @@ struct LoginView: View {
 
 struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
-        LoginView(viewModel: LoginViewModel())
+        LoginView(
+            appState: AppState(dependencies: DependencyContainer.stub())
+        )
     }
 }

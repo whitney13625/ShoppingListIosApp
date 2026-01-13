@@ -12,22 +12,24 @@ class LoginViewModel: ObservableObject {
     
     @Published var username = ""
     @Published var password = ""
-    @Published var isAuthenticated = false
     
+    private let authState: AuthState
     private let authenticationService: AuthenticationService
     
-    init(authenticationService: AuthenticationService = StubAuthenticationService()) {
+    
+    init(authState: AuthState, authenticationService: AuthenticationService) {
+        self.authState = authState
         self.authenticationService = authenticationService
     }
     
     func login() async {
-        let credentials = (username: username, password: password)
         do {
-            try await authenticationService.login(credentials: credentials)
-            isAuthenticated = true
+            try await authenticationService.login(username: username, password: password)
+            authState.isAuthenticated = true
+            
         }
         catch {
-            isAuthenticated = false
+            authState.isAuthenticated = false
         }
     }
 }

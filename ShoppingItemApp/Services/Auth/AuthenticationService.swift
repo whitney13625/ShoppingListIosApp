@@ -8,5 +8,6 @@
 import Foundation
 
 protocol AuthenticationService {
-    func login(credentials: (username: String, password: String)) async throws
+    func checkSession() async -> Bool
+    func login(username: String, password: String) async throws
 }

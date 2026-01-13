@@ -2,10 +2,15 @@ import SwiftUI
 
 struct ContentView: View {
     
-    @StateObject var viewModel = ShoppingListViewModel()
+    @Environment(AppState.self) private var appState
+    @StateObject var viewModel: ShoppingListViewModel
     @State private var showingAddItemSheet = false
     @State private var showingCategoryListSheet = false // New state variable
 
+    init(appState: AppState) {
+        _viewModel = StateObject(wrappedValue: appState.makeShoppingListViewModel())
+    }
+    
     var body: some View {
         NavigationView {
             shoppingList
@@ -26,12 +31,10 @@ struct ContentView: View {
                 }
                 .showAddItem(binding: $showingAddItemSheet, viewModel: viewModel)
                 .sheet(isPresented: $showingCategoryListSheet) {
-                    CategoryListView(viewModel: viewModel)
+                    CategoryListView(appState: appState)
                 }
                 .onAppear {
-                    Task {
-                        await viewModel.fetchShoppingItems()
-                    }
+                    viewModel.fetchShoppingItems()
                 }
         }
     }
@@ -51,7 +54,7 @@ struct ContentView: View {
                 }
                 else {
                     ForEach(loaded) { item in
-                        NavigationLink(destination: ShoppingItemDetailView(viewModel: viewModel, shoppingItem: item)) {
+                        NavigationLink(destination: ShoppingItemDetailView(appState: appState, shoppingItem: item)) {
                             VStack(alignment: .leading) {
                                 Text(item.name)
                                     .font(.headline)
@@ -80,17 +83,18 @@ fileprivate extension View {
 
 fileprivate struct ShowAddItemViewModifier: ViewModifier {
     
+    @Environment(AppState.self) private var appState
     @Binding fileprivate var showingAddItemSheet: Bool
     @ObservedObject fileprivate var viewModel: ShoppingListViewModel
     
     func body(content: Content) -> some View {
         content
             .sheet(isPresented: $showingAddItemSheet) {
-            ShoppingItemDetailView(viewModel: viewModel)
+                ShoppingItemDetailView(appState: appState)
         }
     }
 }
 
 #Preview {
-    ContentView()
+    ContentView(appState: .stub)
 }
