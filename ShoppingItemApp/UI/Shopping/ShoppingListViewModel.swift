@@ -3,25 +3,31 @@ import SwiftUI
 
 class ShoppingListViewModel: ObservableObject {
     
+    @Published private var __shoppingItems: Loading<[ShoppingItem]> = .notLoaded
+    @Published private var __categories: Loading<[Category]> = .notLoaded
     @Published var shoppingItems: Loading<[ShoppingItem]> = .notLoaded
     @Published var categories:  Loading<[Category]> = .notLoaded
     
     private let networkService = StubNetworkService()
     
     init() {
+        $__shoppingItems.uiSafeCopy(to: &$shoppingItems)
+        $__categories.uiSafeCopy(to: &$categories)
+        reload()
+    }
+    
+    func reload() {
+        fetchCategories() // Fetch categories on init
+        fetchShoppingItems()
+    }
+    
+    func fetchShoppingItems() {
+        __shoppingItems.startLoading()
+        
         Task {
-            await reload()
-        }
-    }
-    
-    func reload() async {
-        await fetchCategories() // Fetch categories on init
-        await fetchShoppingItems()
-    }
-    
-    func fetchShoppingItems() async {
-        await self.shoppingItems.load {
-            try await networkService.fetchShoppingItems()
+            await __shoppingItems.load {
+                try await networkService.fetchShoppingItems()
+            }
         }
     }
     
@@ -42,9 +48,13 @@ class ShoppingListViewModel: ObservableObject {
     }
     
     // New: Fetch categories
-    func fetchCategories() async {
-        await self.categories.load {
-            try await networkService.fetchCategories()
+    func fetchCategories() {
+        __categories.startLoading()
+        
+        Task {
+            await __categories.load {
+                try await networkService.fetchCategories()
+            }
         }
     }
     
@@ -52,7 +62,7 @@ class ShoppingListViewModel: ObservableObject {
     func addCategory(_ category: Category) async {
         do {
             _ = try await networkService.addCategory(category)
-            await fetchCategories() // Refresh categories after adding
+            fetchCategories() // Refresh categories after adding
         } catch {
             print("Error adding category: \(error.localizedDescription)")
         }
@@ -62,7 +72,7 @@ class ShoppingListViewModel: ObservableObject {
     func updateCategory(_ category: Category) async {
         do {
             _ = try await networkService.updateCategory(category)
-            await fetchCategories() // Refresh categories after updating
+            fetchCategories() // Refresh categories after updating
         } catch {
             print("Error updating category: \(error.localizedDescription)")
         }
@@ -72,7 +82,7 @@ class ShoppingListViewModel: ObservableObject {
     func deleteCategory(_ category: Category) async {
         do {
             try await networkService.deleteCategory(category.id)
-            await fetchCategories() // Refresh categories after deleting
+            fetchCategories() // Refresh categories after deleting
         } catch {
             print("Error deleting category: \(error.localizedDescription)")
         }

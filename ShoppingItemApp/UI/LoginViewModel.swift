@@ -22,6 +22,12 @@ class LoginViewModel: ObservableObject {
     
     func login() async {
         let credentials = (username: username, password: password)
-        isAuthenticated = await authenticationService.login(credentials: credentials)
+        do {
+            try await authenticationService.login(credentials: credentials)
+            isAuthenticated = true
+        }
+        catch {
+            isAuthenticated = false
+        }
     }
 }
