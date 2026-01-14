@@ -1,8 +1,7 @@
 
 import Foundation
-import Observation
 
-@Observable
+
 class StubAuthenticationService: AuthenticationService {
     
     func checkSession() async -> Bool {

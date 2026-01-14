@@ -3,8 +3,8 @@ import Foundation
 import SwiftUI
 import Observation
 
-@Observable
 @MainActor
+@Observable
 final class ShoppingListViewModel: LoadableViewModelProtocol {
     
     var shoppingItems: Loading<[ShoppingItem]> = .notLoaded

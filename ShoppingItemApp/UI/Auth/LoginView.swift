@@ -46,9 +46,6 @@ struct LoginView: View {
             .padding()
         }
         .padding()
-        .onAppear() {
-            viewModel = appState.makeLoginViewModel()
-        }
     }
 }
 
