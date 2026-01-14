@@ -25,14 +25,14 @@ struct ShoppingListContentView: View {
     
     fileprivate let viewModel: ShoppingListViewModel
     @State private var showingAddItemSheet = false
-    @State private var showingCategoryListSheet = false // New state variable
+    @State private var showingCategoryListSheet = false
     
     var body: some View {
         NavigationStack {
             shoppingList
                 .navigationTitle("Shopping List")
                 .toolbar {
-                    ToolbarItem(placement: .navigationBarLeading) { // New toolbar item
+                    ToolbarItem(placement: .navigationBarLeading) {
                         Button("Manage Categories") {
                             showingCategoryListSheet = true
                         }
@@ -50,7 +50,7 @@ struct ShoppingListContentView: View {
                     CategoryListView(viewModel: viewModel)
                 }
                 .task {
-                    viewModel.fetchShoppingItems()
+                    viewModel.fetchShoppingItems(showLoading: true)
                 }
         }
     }
@@ -71,14 +71,30 @@ struct ShoppingListContentView: View {
                 else {
                     ForEach(loaded) { item in
                         NavigationLink(destination: ShoppingItemDetailView(viewModel: viewModel, shoppingItem: item)) {
-                            VStack(alignment: .leading) {
-                                Text(item.name)
-                                    .font(.headline)
-                                Text("Quantity: \(item.quantity)")
-                                    .font(.subheadline)
-                                Text("Category: \(item.category.name)")
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
+                            HStack {
+                                VStack(alignment: .leading) {
+                                    Text(item.name)
+                                        .font(.headline)
+                                    Text("Quantity: \(item.quantity)")
+                                        .font(.subheadline)
+                                    Text("Category: \(item.category.name)")
+                                        .font(.subheadline)
+                                        .foregroundColor(.gray)
+                                }
+                                Spacer()
+                                VStack(alignment: .trailing) {
+                                    Text("Purchased?")
+                                    Toggle("",
+                                           isOn: Binding(
+                                                    get: { item.purchased },
+                                                    set: { newValue in
+                                                        Task {
+                                                            await viewModel.toggleItemPurchased(item)
+                                                        }
+                                                    }
+                                                 )
+                                    )
+                                }
                             }
                         }
                     }

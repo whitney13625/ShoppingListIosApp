@@ -67,6 +67,15 @@ extension Loading {
     }
 }
 
+extension Loading {
+    mutating func modifyLoaded(_ transform: (inout T) -> Void) {
+        if case .loaded(var value) = self {
+            transform(&value)
+            self = .loaded(value)
+        }
+    }
+}
+
 extension Loading: Equatable where T: Equatable {
     static func == (lhs: Loading<T>, rhs: Loading<T>) -> Bool {
         lhs.loadedValue == rhs.loadedValue

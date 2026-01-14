@@ -11,7 +11,7 @@ struct CategoryListView: View {
     }
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             List {
                 ForEach(viewModel.categories.loadedValue ?? []) { category in
                     HStack {
@@ -72,7 +72,7 @@ struct AddEditCategoryView: View {
     }
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             Form {
                 TextField("Category Name", text: $categoryName)
                 Button("Save") {

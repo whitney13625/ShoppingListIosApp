@@ -1,7 +1,7 @@
 import Foundation
 import Observation
 
-struct ShoppingItemDTO: Codable, Identifiable {
+struct ShoppingItemDTO: Codable, Identifiable, Hashable {
     let id: String
     let name: String
     var quantity: Int
