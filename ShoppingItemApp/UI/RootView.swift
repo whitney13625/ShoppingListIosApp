@@ -10,9 +10,9 @@ struct RootView: View {
         case .splash:
             ProgressView("Splash...")
         case .authentication:
-            LoginView(appState: appState)
+            LoginView()
         case .main:
-            ShoppingListView(appState: appState)
+            ShoppingListView()
         case .loading:
             ProgressView("Loading...")
         }

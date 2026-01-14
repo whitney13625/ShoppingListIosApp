@@ -2,67 +2,57 @@ import SwiftUI
 
 struct ShoppingItemDetailView: View {
     @Environment(\.dismiss) var dismiss
-    @State var viewModel: ShoppingListViewModel
+    private var viewModel: ShoppingListViewModel
     @State private var item: ShoppingItem
     @State private var isNewItem: Bool
     
-    // For now, mock categories
-    let mockCategories = [
-        Category(id: UUID().uuidString, name: "Fruits"),
-        Category(id: UUID().uuidString, name: "Vegetables"),
-        Category(id: UUID().uuidString, name: "Dairy"),
-        Category(id: UUID().uuidString, name: "Meat")
-    ]
-    
-    init(appState: AppState, shoppingItem: ShoppingItem? = nil) {
-        // One line of assembly. Clean and readable.
-        _viewModel = State(initialValue: appState.makeShoppingListViewModel())
-        _item = State(initialValue: shoppingItem
-                      ??
-                      .init(
-                        from: .init(
-                                id: UUID().uuidString,
-                                name: "",
-                                quantity: 1,
-                                category: Category(
-                                    id: UUID().uuidString,
-                                    name: "Uncategorized"
-                                ),
-                                purchased: false
-                              )
-                       )
-        )
+    init(viewModel: ShoppingListViewModel, shoppingItem: ShoppingItem? = nil) {
+        
+        self.viewModel = viewModel
+        
+        if let existing = shoppingItem {
+            _item = State(initialValue: existing)
+        } else {
+            let newItem = ShoppingItem(from: .init(
+                id: UUID().uuidString,
+                name: "",
+                quantity: 1,
+                category: viewModel.categories.loadedValue?.first ?? Category(id: "default", name: "Uncategorized"),
+                purchased: false
+            ))
+            _item = State(initialValue: newItem)
+        }
+        
         _isNewItem = State(initialValue: shoppingItem == nil)
     }
     
     var body: some View {
-        NavigationView {
+        
+        @Bindable var bindableItem = item
+        
+        NavigationStack {
             Form {
                 Section(header: Text("Item Details")) {
-                    TextField("Item Name", text: $item.name)
-                    Stepper("Quantity: \(item.quantity)", value: $item.quantity, in: 1...100)
-                    Picker("Category", selection: $item.category) {
-                        ForEach(mockCategories) { category in
+                    TextField("Item Name", text: $bindableItem.name)
+                    Stepper("Quantity: \(item.quantity)", value: $bindableItem.quantity, in: 1...100)
+                    Picker("Category", selection: $bindableItem.category) {
+                        ForEach(viewModel.categories.loadedValue ?? []) { category in
                             Text(category.name).tag(category)
                         }
                     }
+                    Toggle("Purchased?", isOn: $bindableItem.purchased)
                     .pickerStyle(.menu)
                 }
                 
-                Button("Save") {
-                    Task {
-                        if isNewItem {
-                            await viewModel.addShoppingItem(item)
-                        } else {
-                            await viewModel.updateShoppingItem(item)
-                        }
-                        dismiss()
-                    }
+                Button(isNewItem ? "Add Item" : "Save Changes") {
+                    saveAction()
                 }
+                .buttonStyle(.borderedProminent)
+                .frame(maxWidth: .infinity)
             }
             .navigationTitle(isNewItem ? "Add New Item" : "Edit Item")
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Cancel") {
                         dismiss()
                     }
@@ -70,6 +60,17 @@ struct ShoppingItemDetailView: View {
             }
         }
     }
+    
+    private func saveAction() {
+            Task {
+                if isNewItem {
+                    await viewModel.addShoppingItem(item)
+                } else {
+                    await viewModel.updateShoppingItem(item)
+                }
+                dismiss()
+            }
+        }
 }
 
 // Conformance to Equatable for Category to be used in Picker
@@ -80,5 +81,5 @@ extension Category: Equatable {
 }
 
 #Preview {
-    ShoppingItemDetailView(appState: .stub)
+    ShoppingItemDetailView(viewModel: AppState.stub.makeShoppingListViewModel())
 }

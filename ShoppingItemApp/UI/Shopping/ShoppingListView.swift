@@ -1,18 +1,34 @@
 import SwiftUI
 
 struct ShoppingListView: View {
-    
     @Environment(AppState.self) private var appState
-    @State var viewModel: ShoppingListViewModel
-    @State private var showingAddItemSheet = false
-    @State private var showingCategoryListSheet = false // New state variable
-
-    init(appState: AppState) {
-        _viewModel = State(initialValue: appState.makeShoppingListViewModel())
-    }
+    
+    @State private var viewModel: ShoppingListViewModel?
     
     var body: some View {
-        NavigationView {
+        Group {
+            if let viewModel {
+                ShoppingListContentView(viewModel: viewModel)
+            } else {
+                ProgressView()
+            }
+        }
+        .task {
+            if viewModel == nil {
+                viewModel = appState.makeShoppingListViewModel()
+            }
+        }
+    }
+}
+
+struct ShoppingListContentView: View {
+    
+    fileprivate let viewModel: ShoppingListViewModel
+    @State private var showingAddItemSheet = false
+    @State private var showingCategoryListSheet = false // New state variable
+    
+    var body: some View {
+        NavigationStack {
             shoppingList
                 .navigationTitle("Shopping List")
                 .toolbar {
@@ -31,9 +47,9 @@ struct ShoppingListView: View {
                 }
                 .showAddItem(binding: $showingAddItemSheet, viewModel: viewModel)
                 .sheet(isPresented: $showingCategoryListSheet) {
-                    CategoryListView(appState: appState)
+                    CategoryListView(viewModel: viewModel)
                 }
-                .onAppear {
+                .task {
                     viewModel.fetchShoppingItems()
                 }
         }
@@ -54,7 +70,7 @@ struct ShoppingListView: View {
                 }
                 else {
                     ForEach(loaded) { item in
-                        NavigationLink(destination: ShoppingItemDetailView(appState: appState, shoppingItem: item)) {
+                        NavigationLink(destination: ShoppingItemDetailView(viewModel: viewModel, shoppingItem: item)) {
                             VStack(alignment: .leading) {
                                 Text(item.name)
                                     .font(.headline)
@@ -85,16 +101,16 @@ fileprivate struct ShowAddItemViewModifier: ViewModifier {
     
     @Environment(AppState.self) private var appState
     @Binding fileprivate var showingAddItemSheet: Bool
-    @State fileprivate var viewModel: ShoppingListViewModel
+    fileprivate var viewModel: ShoppingListViewModel
     
     func body(content: Content) -> some View {
         content
             .sheet(isPresented: $showingAddItemSheet) {
-                ShoppingItemDetailView(appState: appState)
+                ShoppingItemDetailView(viewModel: viewModel)
         }
     }
 }
 
 #Preview {
-    ShoppingListView(appState: .stub)
+    ShoppingListView()
 }

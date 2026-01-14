@@ -10,23 +10,43 @@ import SwiftUI
 struct LoginView: View {
     
     @Environment(AppState.self) private var appState
-    @State var viewModel: LoginViewModel
-    
-    init(appState: AppState) {
-        _viewModel = State(initialValue: appState.makeLoginViewModel())
-    }
+    @State private var viewModel: LoginViewModel?
     
     var body: some View {
+        Group {
+            if let viewModel {
+                LoginContentView(viewModel: viewModel)
+            }
+            else {
+                ProgressView()
+            }
+        }
+        .task {
+            if viewModel == nil {
+                viewModel = appState.makeLoginViewModel()
+            }
+        }
+    }
+}
+
+struct LoginContentView: View {
+    
+    fileprivate var viewModel: LoginViewModel
+    
+    var body: some View {
+        
+        @Bindable var bindableViewModel = viewModel
+        
         VStack {
             Text("Login")
                 .font(.largeTitle)
                 .padding()
             
-            TextField("Username", text: $viewModel.username)
+            TextField("Username", text: $bindableViewModel.username)
                 .padding()
                 .textFieldStyle(RoundedBorderTextFieldStyle())
             
-            SecureField("Password", text: Bindable(viewModel).password)
+            SecureField("Password", text: $bindableViewModel.password)
                 .padding()
                 .textFieldStyle(RoundedBorderTextFieldStyle())
             
@@ -51,6 +71,6 @@ struct LoginView: View {
 
 struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
-        LoginView(appState: .stub)
+        LoginView()
     }
 }

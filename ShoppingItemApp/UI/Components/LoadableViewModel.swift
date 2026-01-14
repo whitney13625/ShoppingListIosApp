@@ -6,6 +6,12 @@ protocol LoadableViewModelProtocol: AnyObject {
         on keyPath: ReferenceWritableKeyPath<Self, Loading<T>>,
         operation: @escaping () async throws -> T
     )
+    
+    func performLoad<T>(
+        showLoading: Bool,
+        on keyPath: ReferenceWritableKeyPath<Self, Loading<T>>,
+        operation: @escaping () async throws -> T
+    )
 }
 
 extension LoadableViewModelProtocol where Self: Observable {
@@ -15,8 +21,18 @@ extension LoadableViewModelProtocol where Self: Observable {
         on keyPath: ReferenceWritableKeyPath<Self, Loading<T>>,
         operation: @escaping () async throws -> T
     ) {
-         self[keyPath: keyPath] = .loading
+        performLoad(showLoading: true, on: keyPath, operation: operation)
+    }
 
+    
+    func performLoad<T>(
+        showLoading: Bool,
+        on keyPath: ReferenceWritableKeyPath<Self, Loading<T>>,
+        operation: @escaping () async throws -> T
+    ) {
+        if showLoading {
+            self[keyPath: keyPath] = .loading
+        }
         Task {
             do {
                 let result = try await operation()
@@ -26,6 +42,5 @@ extension LoadableViewModelProtocol where Self: Observable {
             }
         }
     }
-
 }
 
