@@ -4,5 +4,8 @@ import Observation
 
 @Observable
 class AuthState {    
-    var isAuthenticated: Bool = false
+    var status: Loading<Bool> = .notLoaded
+    var isAuthenticated: Bool {
+        self.status.loadedValue ?? false
+    }
 }
