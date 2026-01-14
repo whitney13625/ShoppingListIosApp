@@ -112,5 +112,5 @@ fileprivate struct ShowAddItemViewModifier: ViewModifier {
 }
 
 #Preview {
-    ShoppingListView()
+    ShoppingListContentView(viewModel: AppState.stub.makeShoppingListViewModel())
 }

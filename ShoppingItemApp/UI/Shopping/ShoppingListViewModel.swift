@@ -23,7 +23,10 @@ final class ShoppingListViewModel: LoadableViewModelProtocol {
     }
     
     func fetchShoppingItems() {
-        performLoad(on: \.shoppingItems) { [weak self] in
+        performLoad(
+            showLoading: shoppingItems.loadedValue?.isEmpty ?? true,
+            on: \.shoppingItems
+        ) { [weak self] in
             guard let self else { return [] }
             return try await self.networkService.fetchShoppingItems().map { .init(from: $0) }
         }
@@ -47,7 +50,10 @@ final class ShoppingListViewModel: LoadableViewModelProtocol {
     
     // New: Fetch categories
     func fetchCategories() {
-        performLoad(on: \.categories) { [weak self] in
+        performLoad(
+            showLoading: categories.loadedValue?.isEmpty ?? true,
+            on: \.categories
+        ) { [weak self] in
             guard let self else { return [] }
             return try await networkService.fetchCategories()
         }
