@@ -2,16 +2,23 @@ import SwiftUI
 
 struct ShoppingItemDetailView: View {
     @Environment(\.dismiss) var dismiss
+    
     private var viewModel: ShoppingListViewModel
-    @State private var item: ShoppingItem
-    @State private var isNewItem: Bool
+    
+    let originalItem: ShoppingItem?
+    @State private var draftItem: ShoppingItem
+    
+    private var isNewItem: Bool {
+        originalItem == nil
+    }
     
     init(viewModel: ShoppingListViewModel, shoppingItem: ShoppingItem? = nil) {
         
         self.viewModel = viewModel
+        self.originalItem = shoppingItem
         
         if let existing = shoppingItem {
-            _item = State(initialValue: existing)
+            _draftItem = State(initialValue: existing.copy())
         } else {
             let newItem = ShoppingItem(from: .init(
                 id: UUID().uuidString,
@@ -20,21 +27,19 @@ struct ShoppingItemDetailView: View {
                 category: viewModel.categories.loadedValue?.first ?? Category(id: "default", name: "Uncategorized"),
                 purchased: false
             ))
-            _item = State(initialValue: newItem)
+            _draftItem = State(initialValue: newItem)
         }
-        
-        _isNewItem = State(initialValue: shoppingItem == nil)
     }
     
     var body: some View {
         
-        @Bindable var bindableItem = item
+        @Bindable var bindableItem = draftItem
         
         NavigationStack {
             Form {
                 Section(header: Text("Item Details")) {
                     TextField("Item Name", text: $bindableItem.name)
-                    Stepper("Quantity: \(item.quantity)", value: $bindableItem.quantity, in: 1...100)
+                    Stepper("Quantity: \(bindableItem.quantity)", value: $bindableItem.quantity, in: 1...100)
                     Picker("Category", selection: $bindableItem.category) {
                         ForEach(viewModel.categories.loadedValue ?? []) { category in
                             Text(category.name).tag(category)
@@ -62,15 +67,17 @@ struct ShoppingItemDetailView: View {
     }
     
     private func saveAction() {
-            Task {
-                if isNewItem {
-                    await viewModel.addShoppingItem(item)
-                } else {
-                    await viewModel.updateShoppingItem(item)
-                }
-                dismiss()
+        Task {
+            if let original = originalItem {
+                original.update(from: draftItem)
+                await viewModel.updateShoppingItem(original)
             }
+            else {
+                await viewModel.addShoppingItem(draftItem)
+            }
+            dismiss()
         }
+    }
 }
 
 // Conformance to Equatable for Category to be used in Picker
