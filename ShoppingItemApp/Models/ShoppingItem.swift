@@ -34,4 +34,23 @@ class ShoppingItem: Identifiable, Codable {
             purchased: purchased
         )
     }
+    
+    func copy() -> ShoppingItem {
+        .init(
+            from: .init(
+                id: self.id,
+                name: self.name,
+                quantity: self.quantity,
+                category: self.category,
+                purchased: self.purchased
+            )
+        )
+    }
+
+    func update(from other: ShoppingItem) {
+        self.name = other.name
+        self.quantity = other.quantity
+        self.category = other.category
+        self.purchased = other.purchased
+    }
 }
