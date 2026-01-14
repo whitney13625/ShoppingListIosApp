@@ -6,7 +6,7 @@ class StubNetworkService: NetworkService {
     private let fruitCategory = Category(id: UUID().uuidString, name: "Fruits")
     
     private var categories: [Category]
-    private var shoppingItems: [ShoppingItem]
+    private var shoppingItems: [ShoppingItemDTO]
     
     init() {
         let fruitCategory = Category(id: UUID().uuidString, name: "Fruits")
@@ -19,32 +19,32 @@ class StubNetworkService: NetworkService {
         ]
         
         self.shoppingItems = [
-            ShoppingItem(id: UUID().uuidString, name: "Apple", quantity: 2, category: fruitCategory),
-            ShoppingItem(id: UUID().uuidString, name: "Banana", quantity: 3, category: fruitCategory),
-            ShoppingItem(id: UUID().uuidString, name: "Orange", quantity: 1, category: fruitCategory)
+            ShoppingItemDTO(id: UUID().uuidString, name: "Apple", quantity: 2, category: fruitCategory),
+            ShoppingItemDTO(id: UUID().uuidString, name: "Banana", quantity: 3, category: fruitCategory),
+            ShoppingItemDTO(id: UUID().uuidString, name: "Orange", quantity: 1, category: fruitCategory)
         ]
     }
     
-    func fetchShoppingItems() async throws -> [ShoppingItem] {
+    func fetchShoppingItems() async throws -> [ShoppingItemDTO] {
         try await Task.sleep(for: .seconds(3))
         let mockCategory = Category(id: UUID().uuidString, name: "Fruits")
         return shoppingItems
     }
     
-    func getShoppingItem(_ id: String) async throws -> ShoppingItem {
+    func getShoppingItem(_ id: String) async throws -> ShoppingItemDTO {
         guard let item = shoppingItems.first(where: { $0.id == id }) else {
             throw NetworkApiError.shoppingItemNotFound
         }
         return item
     }
     
-    func addShoppingItem(_ item: ShoppingItem) async throws -> ShoppingItem {
+    func addShoppingItem(_ item: ShoppingItemDTO) async throws -> ShoppingItemDTO {
         try await Task.sleep(for: .seconds(3))
         shoppingItems.append(item)
         return item
     }
     
-    func updateShoppingItem(_ item: ShoppingItem) async throws -> ShoppingItem {
+    func updateShoppingItem(_ item: ShoppingItemDTO) async throws -> ShoppingItemDTO {
         try await Task.sleep(for: .seconds(3))
         guard let index = shoppingItems.firstIndex(where: { $0.id == item.id }) else {
             throw NetworkApiError.shoppingItemNotFound

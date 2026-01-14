@@ -1,14 +1,14 @@
 import SwiftUI
 
-struct ContentView: View {
+struct ShoppingListView: View {
     
     @Environment(AppState.self) private var appState
-    @StateObject var viewModel: ShoppingListViewModel
+    @State var viewModel: ShoppingListViewModel
     @State private var showingAddItemSheet = false
     @State private var showingCategoryListSheet = false // New state variable
 
     init(appState: AppState) {
-        _viewModel = StateObject(wrappedValue: appState.makeShoppingListViewModel())
+        _viewModel = State(initialValue: appState.makeShoppingListViewModel())
     }
     
     var body: some View {
@@ -85,7 +85,7 @@ fileprivate struct ShowAddItemViewModifier: ViewModifier {
     
     @Environment(AppState.self) private var appState
     @Binding fileprivate var showingAddItemSheet: Bool
-    @ObservedObject fileprivate var viewModel: ShoppingListViewModel
+    @State fileprivate var viewModel: ShoppingListViewModel
     
     func body(content: Content) -> some View {
         content
@@ -96,5 +96,5 @@ fileprivate struct ShowAddItemViewModifier: ViewModifier {
 }
 
 #Preview {
-    ContentView(appState: .stub)
+    ShoppingListView(appState: .stub)
 }

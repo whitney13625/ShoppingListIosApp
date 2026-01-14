@@ -10,10 +10,10 @@ import SwiftUI
 struct LoginView: View {
     
     @Environment(AppState.self) private var appState
-    @ObservedObject var viewModel: LoginViewModel
-
+    @State var viewModel: LoginViewModel
+    
     init(appState: AppState) {
-        _viewModel = ObservedObject(initialValue: appState.makeLoginViewModel())
+        _viewModel = State(initialValue: appState.makeLoginViewModel())
     }
     
     var body: some View {
@@ -26,7 +26,7 @@ struct LoginView: View {
                 .padding()
                 .textFieldStyle(RoundedBorderTextFieldStyle())
             
-            SecureField("Password", text: $viewModel.password)
+            SecureField("Password", text: Bindable(viewModel).password)
                 .padding()
                 .textFieldStyle(RoundedBorderTextFieldStyle())
             
@@ -46,13 +46,14 @@ struct LoginView: View {
             .padding()
         }
         .padding()
+        .onAppear() {
+            viewModel = appState.makeLoginViewModel()
+        }
     }
 }
 
 struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
-        LoginView(
-            appState: AppState(dependencies: DependencyContainer.stub())
-        )
+        LoginView(appState: .stub)
     }
 }

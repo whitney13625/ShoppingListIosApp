@@ -2,12 +2,12 @@ import SwiftUI
 
 struct CategoryListView: View {
     @Environment(\.dismiss) var dismiss
-    @ObservedObject var viewModel: ShoppingListViewModel
+    @State var viewModel: ShoppingListViewModel
     @State private var showingAddCategorySheet = false
     @State private var categoryToEdit: Category?
     
     init(appState: AppState) {
-        _viewModel = ObservedObject(initialValue: appState.makeShoppingListViewModel())
+        _viewModel = State(initialValue: appState.makeShoppingListViewModel())
     }
     
     var body: some View {
@@ -61,7 +61,7 @@ struct CategoryListView: View {
 
 struct AddEditCategoryView: View {
     @Environment(\.dismiss) var dismiss
-    @ObservedObject var viewModel: ShoppingListViewModel
+    @State var viewModel: ShoppingListViewModel
     @State private var categoryName: String
     var categoryToEdit: Category?
     

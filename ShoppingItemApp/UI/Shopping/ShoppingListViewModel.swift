@@ -1,19 +1,19 @@
+
 import Foundation
 import SwiftUI
+import Observation
 
-class ShoppingListViewModel: ObservableObject {
+@Observable
+@MainActor
+final class ShoppingListViewModel: LoadableViewModelProtocol {
     
-    @Published private var __shoppingItems: Loading<[ShoppingItem]> = .notLoaded
-    @Published private var __categories: Loading<[Category]> = .notLoaded
-    @Published var shoppingItems: Loading<[ShoppingItem]> = .notLoaded
-    @Published var categories:  Loading<[Category]> = .notLoaded
+    var shoppingItems: Loading<[ShoppingItem]> = .notLoaded
+    var categories:  Loading<[Category]> = .notLoaded
     
     private let networkService: NetworkService
     
     init(networkService: NetworkService) {
         self.networkService = networkService
-        $__shoppingItems.uiSafeCopy(to: &$shoppingItems)
-        $__categories.uiSafeCopy(to: &$categories)
         reload()
     }
     
@@ -23,18 +23,15 @@ class ShoppingListViewModel: ObservableObject {
     }
     
     func fetchShoppingItems() {
-        __shoppingItems.startLoading()
-        
-        Task {
-            await __shoppingItems.load {
-                try await networkService.fetchShoppingItems()
-            }
+        performLoad(on: \.shoppingItems) { [weak self] in
+            guard let self else { return [] }
+            return try await self.networkService.fetchShoppingItems().map { .init(from: $0) }
         }
     }
     
     func addShoppingItem(_ item: ShoppingItem) async {
         do {
-            _ = try await networkService.addShoppingItem(item)
+            _ = try await networkService.addShoppingItem(item.toDTO())
         } catch {
             print("Error adding shoping item: \(error.localizedDescription)")
         }
@@ -42,7 +39,7 @@ class ShoppingListViewModel: ObservableObject {
     
     func updateShoppingItem(_ item: ShoppingItem) async {
         do {
-            _ = try await networkService.updateShoppingItem(item)
+            _ = try await networkService.updateShoppingItem(item.toDTO())
         } catch {
             print("Error updating shoping item: \(error.localizedDescription)")
         }
@@ -50,12 +47,9 @@ class ShoppingListViewModel: ObservableObject {
     
     // New: Fetch categories
     func fetchCategories() {
-        __categories.startLoading()
-        
-        Task {
-            await __categories.load {
-                try await networkService.fetchCategories()
-            }
+        performLoad(on: \.categories) { [weak self] in
+            guard let self else { return [] }
+            return try await networkService.fetchCategories()
         }
     }
     

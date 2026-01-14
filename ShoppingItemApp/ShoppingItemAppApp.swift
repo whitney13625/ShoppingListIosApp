@@ -14,15 +14,8 @@ struct ShoppingItemAppApp: App {
     
     var body: some Scene {
         WindowGroup {
-            /*
-            if loginViewModel.isAuthenticated {
-                ContentView()
-            } else {
-                LoginView(viewModel: loginViewModel)
-            }
-             */
             RootView()
-                .environment(appState) // Injection happens here
+                .environment(appState)
                 .task {
                     await appState.bootstrap()
                 }

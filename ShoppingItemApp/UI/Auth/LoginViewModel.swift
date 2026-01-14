@@ -1,17 +1,13 @@
-//
-//  LoginViewModel.swift
-//  ShoppingItemApp
-//
-//  Created by Gemini on 1/13/26.
-//
 
 import Foundation
+import Observation
 
 @MainActor
-class LoginViewModel: ObservableObject {
+@Observable
+class LoginViewModel {
     
-    @Published var username = ""
-    @Published var password = ""
+    var username = ""
+    var password = ""
     
     private let authState: AuthState
     private let authenticationService: AuthenticationService

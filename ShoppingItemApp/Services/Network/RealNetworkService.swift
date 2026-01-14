@@ -12,22 +12,22 @@ class RealNetworkService: NetworkService {
     
     // MARK: - Shopping Items
     
-    func fetchShoppingItems() async throws -> [ShoppingItem] {
+    func fetchShoppingItems() async throws -> [ShoppingItemDTO] {
         let url = uri("shopping")
         return try await http.performRequest(url, method: .GET)
     }
     
-    func getShoppingItem(_ id: String) async throws -> ShoppingItem {
+    func getShoppingItem(_ id: String) async throws -> ShoppingItemDTO {
         let url = uri("shopping", id)
         return try await http.performRequest(url, method: .GET)
     }
     
-    func addShoppingItem(_ item: ShoppingItem) async throws -> ShoppingItem {
+    func addShoppingItem(_ item: ShoppingItemDTO) async throws -> ShoppingItemDTO {
         let url = uri("shopping")
         return try await http.performRequest(url, method: .POST, body: item)
     }
     
-    func updateShoppingItem(_ item: ShoppingItem) async throws -> ShoppingItem {
+    func updateShoppingItem(_ item: ShoppingItemDTO) async throws -> ShoppingItemDTO {
         let url = uri("shopping", item.id)
         return try await http.performRequest(url, method: .PUT, body: item)
     }

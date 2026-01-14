@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ShoppingItemDetailView: View {
     @Environment(\.dismiss) var dismiss
-    @ObservedObject var viewModel: ShoppingListViewModel
+    @State var viewModel: ShoppingListViewModel
     @State private var item: ShoppingItem
     @State private var isNewItem: Bool
     
@@ -16,8 +16,22 @@ struct ShoppingItemDetailView: View {
     
     init(appState: AppState, shoppingItem: ShoppingItem? = nil) {
         // One line of assembly. Clean and readable.
-        _viewModel = ObservedObject(initialValue: appState.makeShoppingListViewModel())
-        _item = State(initialValue: shoppingItem ?? ShoppingItem(id: UUID().uuidString, name: "", quantity: 1, category: Category(id: UUID().uuidString, name: "Uncategorized")))
+        _viewModel = State(initialValue: appState.makeShoppingListViewModel())
+        _item = State(initialValue: shoppingItem
+                      ??
+                      .init(
+                        from: .init(
+                                id: UUID().uuidString,
+                                name: "",
+                                quantity: 1,
+                                category: Category(
+                                    id: UUID().uuidString,
+                                    name: "Uncategorized"
+                                ),
+                                purchased: false
+                              )
+                       )
+        )
         _isNewItem = State(initialValue: shoppingItem == nil)
     }
     

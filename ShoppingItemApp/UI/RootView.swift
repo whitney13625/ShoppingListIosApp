@@ -12,7 +12,7 @@ struct RootView: View {
         case .authentication:
             LoginView(appState: appState)
         case .main:
-            ContentView(appState: appState)
+            ShoppingListView(appState: appState)
         case .loading:
             ProgressView("Loading...")
         }
