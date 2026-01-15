@@ -54,3 +54,9 @@ class ShoppingItem: Identifiable, Codable {
         self.purchased = other.purchased
     }
 }
+
+extension ShoppingItem: Equatable {
+    static func == (lhs: ShoppingItem, rhs: ShoppingItem) -> Bool {
+        lhs.id == rhs.id
+    }
+}

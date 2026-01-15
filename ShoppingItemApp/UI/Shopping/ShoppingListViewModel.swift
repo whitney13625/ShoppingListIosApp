@@ -17,14 +17,15 @@ final class ShoppingListViewModel: LoadableViewModelProtocol {
         reload(showLoading: true)
     }
     
-    func reload(showLoading: Bool) {
+    func reload(showLoading: Bool? = nil) {
+        let showLoading = showLoading ?? shoppingItems.loadedValue?.isEmpty ?? true
         fetchCategories(showLoading: showLoading) // Fetch categories on init
         fetchShoppingItems(showLoading: showLoading)
     }
     
     func fetchShoppingItems(showLoading: Bool) {
         performLoad(
-            showLoading: showLoading ?? shoppingItems.loadedValue?.isEmpty ?? true,
+            showLoading: showLoading,
             on: \.shoppingItems
         ) { [weak self] in
             guard let self else { return [] }
@@ -92,32 +93,21 @@ final class ShoppingListViewModel: LoadableViewModelProtocol {
     @MainActor
     func toggleItemPurchased(_ item: ShoppingItem) async {
         
-        guard var loadedItems = shoppingItems.loadedValue else { return }
+        guard let loadedItems = shoppingItems.loadedValue else { return }
         
-        // 2. 備份原始狀態（回滾用）
         let originalPurchased = item.purchased
         
-        // 3. 樂觀更新：直接改物件屬性（觸發 Row UI 更新）
-        // 4. 華麗排序：直接對陣列重排並重新賦值給 Loadable
-        withAnimation(.spring()) {
-            item.purchased.toggle()
-            
-            // 重新排序陣列
-            let sortedItems = loadedItems.sorted { !$0.purchased && $1.purchased }
-            
-            // 關鍵：將排序後的陣列塞回 Loadable
-            // 這不會觸發 Loading 動畫，因為它直接跳過 .loading 狀態
-            self.shoppingItems = .loaded(sortedItems)
-        }
+        item.purchased.toggle()
+        
+        let sortedItems = loadedItems.sorted { !$0.purchased && $1.purchased }
+        
+        self.shoppingItems = .loaded(sortedItems)
 
         do {
-            // 5. 呼叫 Node.js API (SQL DELETE/UPDATE)
             try await networkService.updateShoppingItem(item.toDTO())
         } catch {
-            // 6. 失敗回滾
-            withAnimation {
-                item.purchased = originalPurchased
-            }
+            // Rollback
+            item.purchased = originalPurchased
         }
     }
     

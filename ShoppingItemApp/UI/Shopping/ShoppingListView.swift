@@ -50,7 +50,7 @@ struct ShoppingListContentView: View {
                     CategoryListView(viewModel: viewModel)
                 }
                 .task {
-                    viewModel.fetchShoppingItems(showLoading: true)
+                    viewModel.reload()
                 }
         }
     }
@@ -104,6 +104,7 @@ struct ShoppingListContentView: View {
                 Text("Unhandled case")
             }
         }
+        .animation(.default, value: viewModel.shoppingItems.loadedValue)
     }
 }
 
