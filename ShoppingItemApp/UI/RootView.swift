@@ -13,8 +13,6 @@ struct RootView: View {
             LoginView()
         case .main:
             ShoppingListView()
-        case .loading:
-            ProgressView("Loading...")
         }
     }
 }

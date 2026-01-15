@@ -32,6 +32,7 @@ struct LoginView: View {
 struct LoginContentView: View {
     
     fileprivate var viewModel: LoginViewModel
+    @State private var error: Error?
     
     var body: some View {
         
@@ -51,9 +52,7 @@ struct LoginContentView: View {
                 .textFieldStyle(RoundedBorderTextFieldStyle())
             
             Button(action: {
-                Task {
-                    await viewModel.login()
-                }
+                login()
             }) {
                 Text("Login")
                     .font(.headline)
@@ -66,6 +65,17 @@ struct LoginContentView: View {
             .padding()
         }
         .padding()
+        .showError(for: $error, onDismiss: { self.error = nil })
+    }
+    
+    func login() {
+        Task {
+            do {
+                try await viewModel.login()
+            } catch {
+                self.error = error
+            }
+        }
     }
 }
 

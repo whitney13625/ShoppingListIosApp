@@ -14,17 +14,18 @@ final class ShoppingListViewModel: LoadableViewModelProtocol {
     
     init(networkService: NetworkService) {
         self.networkService = networkService
-        reload()
+        reload(showLoading: true)
     }
     
-    func reload() {
-        fetchCategories() // Fetch categories on init
-        fetchShoppingItems()
+    func reload(showLoading: Bool? = nil) {
+        let showLoading = showLoading ?? shoppingItems.loadedValue?.isEmpty ?? true
+        fetchCategories(showLoading: showLoading) // Fetch categories on init
+        fetchShoppingItems(showLoading: showLoading)
     }
     
-    func fetchShoppingItems() {
+    func fetchShoppingItems(showLoading: Bool) {
         performLoad(
-            showLoading: shoppingItems.loadedValue?.isEmpty ?? true,
+            showLoading: showLoading,
             on: \.shoppingItems
         ) { [weak self] in
             guard let self else { return [] }
@@ -49,9 +50,9 @@ final class ShoppingListViewModel: LoadableViewModelProtocol {
     }
     
     // New: Fetch categories
-    func fetchCategories() {
+    func fetchCategories(showLoading: Bool? = nil) {
         performLoad(
-            showLoading: categories.loadedValue?.isEmpty ?? true,
+            showLoading: showLoading ?? categories.loadedValue?.isEmpty ?? true,
             on: \.categories
         ) { [weak self] in
             guard let self else { return [] }
@@ -87,5 +88,48 @@ final class ShoppingListViewModel: LoadableViewModelProtocol {
         } catch {
             print("Error deleting category: \(error.localizedDescription)")
         }
+    }
+    
+    @MainActor
+    func toggleItemPurchased(_ item: ShoppingItem) async {
+        
+        guard let loadedItems = shoppingItems.loadedValue else { return }
+        
+        let originalPurchased = item.purchased
+        
+        item.purchased.toggle()
+        
+        let sortedItems = loadedItems.sorted { !$0.purchased && $1.purchased }
+        
+        self.shoppingItems = .loaded(sortedItems)
+
+        do {
+            try await networkService.updateShoppingItem(item.toDTO())
+        } catch {
+            // Rollback
+            item.purchased = originalPurchased
+        }
+    }
+    
+    private func updateItems(with dtos: [ShoppingItem]) {
+        let currentItemsById = Dictionary(uniqueKeysWithValues: (shoppingItems.loadedValue ?? []).map { ($0.id, $0) })
+        
+        let updatedList = dtos.map { dto -> ShoppingItem in
+            if let existingItem = currentItemsById[dto.id] {
+                existingItem.update(from: dto)
+                return existingItem
+            } else {
+                return dto
+            }
+        }
+        
+        self.shoppingItems = .loaded(
+            updatedList.sorted {
+                if $0.purchased != $1.purchased {
+                    return !$0.purchased
+                }
+                return $0.name < $1.name
+            }
+        )
     }
 }

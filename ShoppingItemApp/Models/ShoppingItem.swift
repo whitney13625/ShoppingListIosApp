@@ -1,7 +1,7 @@
 import Foundation
 import Observation
 
-struct ShoppingItemDTO: Codable, Identifiable {
+struct ShoppingItemDTO: Codable, Identifiable, Hashable {
     let id: String
     let name: String
     var quantity: Int
@@ -52,5 +52,11 @@ class ShoppingItem: Identifiable, Codable {
         self.quantity = other.quantity
         self.category = other.category
         self.purchased = other.purchased
+    }
+}
+
+extension ShoppingItem: Equatable {
+    static func == (lhs: ShoppingItem, rhs: ShoppingItem) -> Bool {
+        lhs.id == rhs.id
     }
 }

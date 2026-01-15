@@ -9,6 +9,14 @@ class StubAuthenticationService: AuthenticationService {
     }
     
     func login(username: String, password: String) async throws {
-        try? await Task.sleep(nanoseconds: 1_000_000_000) // Simulate network delay
+        if username.lowercased() == "fail" {
+            throw AuthError.invalidCredentials
+        }
+        try? await Task.sleep(nanoseconds: 1_000_000_000)
+    }
+    
+    func logout() async {
+        try? await Task.sleep(nanoseconds: 1_000_000_000)
     }
 }
+

@@ -5,8 +5,8 @@ class StubNetworkService: NetworkService {
     
     private let fruitCategory = Category(id: UUID().uuidString, name: "Fruits")
     
-    private var categories: [Category]
-    private var shoppingItems: [ShoppingItemDTO]
+    private var categories: Set<Category>
+    private var shoppingItems: Set<ShoppingItemDTO>
     
     init() {
         let fruitCategory = Category(id: UUID().uuidString, name: "Fruits")
@@ -27,8 +27,7 @@ class StubNetworkService: NetworkService {
     
     func fetchShoppingItems() async throws -> [ShoppingItemDTO] {
         try await Task.sleep(for: .seconds(3))
-        let mockCategory = Category(id: UUID().uuidString, name: "Fruits")
-        return shoppingItems
+        return Array(shoppingItems)
     }
     
     func getShoppingItem(_ id: String) async throws -> ShoppingItemDTO {
@@ -40,27 +39,26 @@ class StubNetworkService: NetworkService {
     
     func addShoppingItem(_ item: ShoppingItemDTO) async throws -> ShoppingItemDTO {
         try await Task.sleep(for: .seconds(3))
-        shoppingItems.append(item)
+        shoppingItems.insert(item)
         return item
     }
     
     func updateShoppingItem(_ item: ShoppingItemDTO) async throws -> ShoppingItemDTO {
         try await Task.sleep(for: .seconds(3))
-        guard let index = shoppingItems.firstIndex(where: { $0.id == item.id }) else {
-            throw NetworkApiError.shoppingItemNotFound
-        }
-        shoppingItems[index] = item
+        shoppingItems.insert(item)
         return item
     }
     
     func deleteShoppingItem(_ id: String) async throws {
         try await Task.sleep(for: .seconds(3))
-        shoppingItems.removeAll(where: { $0.id == id })
+        if let item = Array(shoppingItems.filter{ $0.id == id }).first {
+            shoppingItems.remove(item)
+        }
     }
     
     func fetchCategories() async throws -> [Category] {
         try await Task.sleep(for: .seconds(3))
-        return categories
+        return Array(categories)
     }
     
     func getCategory(_ id: String) async throws -> Category {
@@ -73,21 +71,20 @@ class StubNetworkService: NetworkService {
     
     func addCategory(_ category: Category) async throws -> Category {
         try await Task.sleep(for: .seconds(3))
-        categories.append(category)
+        categories.insert(category)
         return category
     }
     
     func updateCategory(_ category: Category) async throws -> Category {
         try await Task.sleep(for: .seconds(3))
-        guard let index = categories.firstIndex(where: { $0.id == category.id }) else {
-            throw NetworkApiError.categoryNotFound
-        }
-        categories[index] = category
+        categories.insert(category)
         return category
     }
     
     func deleteCategory(_ id: String) async throws {
         try await Task.sleep(for: .seconds(3))
-        categories.removeAll(where: { $0.id == id })
+        if let cat = Array(categories.filter{ $0.id == id }).first {
+            categories.remove(cat)
+        }
     }
 }

@@ -9,7 +9,7 @@ class LoginViewModel {
     var username = ""
     var password = ""
     
-    private let authState: AuthState
+    let authState: AuthState
     private let authenticationService: AuthenticationService
     
     
@@ -18,14 +18,14 @@ class LoginViewModel {
         self.authenticationService = authenticationService
     }
     
-    func login() async {
+    func login() async throws {
         do {
             try await authenticationService.login(username: username, password: password)
-            authState.isAuthenticated = true
-            
+            authState.status = .loaded(true)
         }
         catch {
-            authState.isAuthenticated = false
+            authState.status = .error(error)
+            throw error
         }
     }
 }

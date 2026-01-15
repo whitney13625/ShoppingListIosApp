@@ -11,6 +11,7 @@ class AppState {
     private var networkService: NetworkService
     private var authState: AuthState
     
+    
     init(dependencies: DependencyContainer = .stub()) {
         self.dependencies = dependencies
         self.authenticationService = dependencies.authenticationService
@@ -25,13 +26,13 @@ class AppState {
 
     @MainActor
     func bootstrap() async {
-        dependencies.authState.isAuthenticated = await dependencies.authenticationService.checkSession()
+        await dependencies.authState.status.load { await dependencies.authenticationService.checkSession() }
         isInitialLoading = false
     }
 }
 
 enum AppFlow {
-    case splash, authentication, loading, main
+    case splash, authentication, main
 }
 
 extension AppState {
