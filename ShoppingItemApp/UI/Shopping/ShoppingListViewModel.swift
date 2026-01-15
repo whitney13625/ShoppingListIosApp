@@ -56,14 +56,14 @@ final class ShoppingListViewModel: LoadableViewModelProtocol {
             on: \.categories
         ) { [weak self] in
             guard let self else { return [] }
-            return try await networkService.fetchCategories()
+            return try await networkService.fetchCategories().map { .init(from: $0) }
         }
     }
     
     // New: Add category
     func addCategory(_ category: Category) async {
         do {
-            _ = try await networkService.addCategory(category)
+            _ = try await networkService.addCategory(category.toDTO())
             fetchCategories() // Refresh categories after adding
         } catch {
             print("Error adding category: \(error.localizedDescription)")
@@ -73,8 +73,8 @@ final class ShoppingListViewModel: LoadableViewModelProtocol {
     // New: Update category
     func updateCategory(_ category: Category) async {
         do {
-            _ = try await networkService.updateCategory(category)
-            fetchCategories() // Refresh categories after updating
+            _ = try await networkService.updateCategory(category.toDTO())
+            fetchCategories()
         } catch {
             print("Error updating category: \(error.localizedDescription)")
         }

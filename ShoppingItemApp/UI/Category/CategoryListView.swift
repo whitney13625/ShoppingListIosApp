@@ -101,5 +101,5 @@ struct AddEditCategoryView: View {
 }
 
 #Preview {
-    CategoryListView(viewModel: AppState.stub.makeShoppingListViewModel())
+    CategoryListView(viewModel: AppState.preview.makeShoppingListViewModel())
 }

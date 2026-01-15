@@ -3,19 +3,19 @@ import Foundation
 
 class StubNetworkService: NetworkService {
     
-    private let fruitCategory = Category(id: UUID().uuidString, name: "Fruits")
+    private let fruitCategory = CategoryDTO(id: UUID().uuidString, name: "Fruits")
     
-    private var categories: Set<Category>
+    private var categories: Set<CategoryDTO>
     private var shoppingItems: Set<ShoppingItemDTO>
     
     init() {
-        let fruitCategory = Category(id: UUID().uuidString, name: "Fruits")
+        let fruitCategory = CategoryDTO(id: UUID().uuidString, name: "Fruits")
         
         self.categories = [
             fruitCategory,
-            Category(id: UUID().uuidString, name: "Vegetables"),
-            Category(id: UUID().uuidString, name: "Dairy"),
-            Category(id: UUID().uuidString, name: "Meat")
+            CategoryDTO(id: UUID().uuidString, name: "Vegetables"),
+            CategoryDTO(id: UUID().uuidString, name: "Dairy"),
+            CategoryDTO(id: UUID().uuidString, name: "Meat")
         ]
         
         self.shoppingItems = [
@@ -56,12 +56,12 @@ class StubNetworkService: NetworkService {
         }
     }
     
-    func fetchCategories() async throws -> [Category] {
+    func fetchCategories() async throws -> [CategoryDTO] {
         try await Task.sleep(for: .seconds(3))
         return Array(categories)
     }
     
-    func getCategory(_ id: String) async throws -> Category {
+    func getCategory(_ id: String) async throws -> CategoryDTO {
         try await Task.sleep(for: .seconds(3))
         guard let cat = categories.first(where: { $0.id == id }) else {
             throw NetworkApiError.categoryNotFound
@@ -69,13 +69,13 @@ class StubNetworkService: NetworkService {
         return cat
     }
     
-    func addCategory(_ category: Category) async throws -> Category {
+    func addCategory(_ category: CategoryDTO) async throws -> CategoryDTO {
         try await Task.sleep(for: .seconds(3))
         categories.insert(category)
         return category
     }
     
-    func updateCategory(_ category: Category) async throws -> Category {
+    func updateCategory(_ category: CategoryDTO) async throws -> CategoryDTO {
         try await Task.sleep(for: .seconds(3))
         categories.insert(category)
         return category

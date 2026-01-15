@@ -9,24 +9,24 @@ class AppState {
     let dependencies: DependencyContainer
     private var authenticationService: AuthenticationService
     private var networkService: NetworkService
-    private var authState: AuthState
+    private var userSession: UserSession
     
     
-    init(dependencies: DependencyContainer = .stub()) {
+    init(dependencies: DependencyContainer = .live()) {
         self.dependencies = dependencies
         self.authenticationService = dependencies.authenticationService
         self.networkService = dependencies.networkService
-        self.authState = dependencies.authState
+        self.userSession = dependencies.userSession
     }
     
     var currentFlow: AppFlow {
         if isInitialLoading { return .splash }
-        return dependencies.authState.isAuthenticated ? .main : .authentication
+        return dependencies.userSession.isAuthenticated ? .main : .authentication
     }
 
     @MainActor
     func bootstrap() async {
-        await dependencies.authState.status.load { await dependencies.authenticationService.checkSession() }
+        await dependencies.authenticationService.checkSession()
         isInitialLoading = false
     }
 }
@@ -37,5 +37,7 @@ enum AppFlow {
 
 extension AppState {
     static let stub = AppState(dependencies: DependencyContainer.stub())
+    static let preview = AppState(dependencies: DependencyContainer.stub())
+    static let dev = AppState(dependencies: DependencyContainer.dev())
     static let live = AppState(dependencies: DependencyContainer.live())
 }

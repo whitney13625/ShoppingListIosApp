@@ -5,23 +5,31 @@ struct ShoppingItemDTO: Codable, Identifiable, Hashable {
     let id: String
     let name: String
     var quantity: Int
-    var category: Category
+    var category: CategoryDTO
     var purchased: Bool = false
 }
 
 @Observable
-class ShoppingItem: Identifiable, Codable {
+class ShoppingItem: Identifiable {
     let id: String
     var name: String
     var quantity: Int
     var category: Category
     var purchased: Bool
     
+    init(id: String, name: String, quantity: Int, category: Category, purchased: Bool) {
+        self.id = id
+        self.name = name
+        self.quantity = quantity
+        self.category = category
+        self.purchased = purchased
+    }
+    
     init(from dto: ShoppingItemDTO) {
         self.id = dto.id
         self.name = dto.name
         self.quantity = dto.quantity
-        self.category = dto.category
+        self.category = .init(from: dto.category)
         self.purchased = dto.purchased
     }
     
@@ -30,20 +38,18 @@ class ShoppingItem: Identifiable, Codable {
             id: id,
             name: name,
             quantity: quantity,
-            category: category,
+            category: category.toDTO(),
             purchased: purchased
         )
     }
     
     func copy() -> ShoppingItem {
         .init(
-            from: .init(
-                id: self.id,
-                name: self.name,
-                quantity: self.quantity,
-                category: self.category,
-                purchased: self.purchased
-            )
+            id: self.id,
+            name: self.name,
+            quantity: self.quantity,
+            category: self.category,
+            purchased: self.purchased
         )
     }
 
