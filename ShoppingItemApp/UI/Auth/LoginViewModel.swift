@@ -9,22 +9,20 @@ class LoginViewModel {
     var username = ""
     var password = ""
     
-    let authState: AuthState
+    let userSession: UserSession
     private let authenticationService: AuthenticationService
     
     
-    init(authState: AuthState, authenticationService: AuthenticationService) {
-        self.authState = authState
+    init(userSession: UserSession, authenticationService: AuthenticationService) {
+        self.userSession = userSession
         self.authenticationService = authenticationService
     }
     
     func login() async throws {
         do {
             try await authenticationService.login(username: username, password: password)
-            authState.status = .loaded(true)
         }
         catch {
-            authState.status = .error(error)
             throw error
         }
     }

@@ -31,14 +31,27 @@ enum HTTPMethod {
 }
 
 class Http {
+    
+    private let userSession: UserSession
+    
+    init(userSession: UserSession) {
+        self.userSession = userSession
+    }
+    
     // For requests with a body (POST, PUT)
     func performRequest<T: Codable, U: Codable>(
         _ url: URL,
         method: HTTPMethod,
-        body: T
+        body: T,
+        authRequired: Bool = true
     ) async throws -> U {
         var request = URLRequest(url: url)
         request.httpMethod = method.value
+        
+        if authRequired, let token = userSession.getToken() {
+            request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try JSONEncoder().encode(body)
 
@@ -48,10 +61,16 @@ class Http {
     // For requests without a body (GET, DELETE)
     func performRequest<U: Codable>(
         _ url: URL,
-        method: HTTPMethod
+        method: HTTPMethod,
+        authRequired: Bool = true
     ) async throws -> U {
         var request = URLRequest(url: url)
         request.httpMethod = method.value
+        
+        if authRequired, let token = userSession.getToken() {
+            request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
         return try await executeRequest(request)

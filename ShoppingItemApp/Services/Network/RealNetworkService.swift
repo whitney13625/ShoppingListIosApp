@@ -4,12 +4,11 @@ import Foundation
 class RealNetworkService: NetworkService {
     
     private let apiHost: String
-    private let tokenProvider: TokenProvider
-    private let http: Http = .init()
+    private let http: Http
     
-    init(apiHost: String, tokenProvider: TokenProvider) {
+    init(apiHost: String, http: Http) {
         self.apiHost = apiHost
-        self.tokenProvider = tokenProvider
+        self.http = http
     }
     
     private func uri(_ parts: String...) -> URL {
@@ -20,7 +19,8 @@ class RealNetworkService: NetworkService {
     
     func fetchShoppingItems() async throws -> [ShoppingItemDTO] {
         let url = uri("shopping")
-        return try await http.performRequest(url, method: .GET)
+        let response: ShoppingItemsResponse = try await http.performRequest(url, method: .GET)
+        return response.data
     }
     
     func getShoppingItem(_ id: String) async throws -> ShoppingItemDTO {
@@ -47,7 +47,8 @@ class RealNetworkService: NetworkService {
     
     func fetchCategories() async throws -> [CategoryDTO] {
         let url = uri("categories")
-        return try await http.performRequest(url, method: .GET)
+        let response: CategoriesResponse = try await http.performRequest(url, method: .GET)
+        return response.data
     }
     
     func getCategory(_ id: String) async throws -> CategoryDTO {

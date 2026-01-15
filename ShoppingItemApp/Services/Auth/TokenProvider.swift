@@ -1,18 +1,12 @@
 
 protocol TokenProvider {
-    func getToken() -> String?
-    func saveToken(_ token: String)
-    func deleteToken()
-}
-
-class KeychainTokenManager: TokenProvider {
-    func getToken() -> String? { return nil }
-    func saveToken(_ token: String) {  }
-    func deleteToken() {  }
+    func getToken(userId: String) throws -> String?
+    func saveToken(_ token: String, userId: String) throws
+    func deleteToken(userId: String) throws
 }
 
 class StubTokenManager: TokenProvider {
-    func getToken() -> String? { return nil }
-    func saveToken(_ token: String) {  }
-    func deleteToken() {  }
+    func getToken(userId: String) throws -> String? { return nil }
+    func saveToken(_ token: String, userId: String) throws {  }
+    func deleteToken(userId: String) throws {  }
 }

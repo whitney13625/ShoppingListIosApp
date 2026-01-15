@@ -18,6 +18,7 @@ protocol NetworkService {
 }
 
 enum NetworkApiError: Error {
+    case notAuthencated
     case shoppingItemNotFound
     case categoryNotFound
 }
