@@ -1,4 +1,4 @@
 
 struct AppConfig: Codable {
-    var API_HOST: String
+    var API_HOST_NAME: String
 }

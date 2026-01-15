@@ -37,5 +37,7 @@ enum AppFlow {
 
 extension AppState {
     static let stub = AppState(dependencies: DependencyContainer.stub())
+    static let preview = AppState(dependencies: DependencyContainer.stub())
+    static let dev = AppState(dependencies: DependencyContainer.dev())
     static let live = AppState(dependencies: DependencyContainer.live())
 }

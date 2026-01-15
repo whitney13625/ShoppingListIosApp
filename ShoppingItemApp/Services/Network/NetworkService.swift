@@ -8,12 +8,12 @@ protocol NetworkService {
     @discardableResult
     func updateShoppingItem(_ item: ShoppingItemDTO) async throws -> ShoppingItemDTO
     func deleteShoppingItem(_ id: String) async throws
-    func fetchCategories() async throws -> [Category]
-    func getCategory(_ id: String) async throws -> Category
+    func fetchCategories() async throws -> [CategoryDTO]
+    func getCategory(_ id: String) async throws -> CategoryDTO
     @discardableResult
-    func addCategory(_ category: Category) async throws -> Category
+    func addCategory(_ category: CategoryDTO) async throws -> CategoryDTO
     @discardableResult
-    func updateCategory(_ category: Category) async throws -> Category
+    func updateCategory(_ category: CategoryDTO) async throws -> CategoryDTO
     func deleteCategory(_ id: String) async throws
 }
 
