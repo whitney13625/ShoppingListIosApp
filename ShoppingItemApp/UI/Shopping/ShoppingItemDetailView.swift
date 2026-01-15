@@ -20,13 +20,13 @@ struct ShoppingItemDetailView: View {
         if let existing = shoppingItem {
             _draftItem = State(initialValue: existing.copy())
         } else {
-            let newItem = ShoppingItem(from: .init(
+            let newItem = ShoppingItem(
                 id: UUID().uuidString,
                 name: "",
                 quantity: 1,
                 category: viewModel.categories.loadedValue?.first ?? Category(id: "default", name: "Uncategorized"),
                 purchased: false
-            ))
+            )
             _draftItem = State(initialValue: newItem)
         }
     }
@@ -88,5 +88,5 @@ extension Category: Equatable {
 }
 
 #Preview {
-    ShoppingItemDetailView(viewModel: AppState.stub.makeShoppingListViewModel())
+    ShoppingItemDetailView(viewModel: AppState.preview.makeShoppingListViewModel())
 }

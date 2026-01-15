@@ -401,6 +401,7 @@
 			baseConfigurationReferenceAnchor = 81C9B70E2F049E93001F119C /* ShoppingItemApp */;
 			baseConfigurationReferenceRelativePath = "Config/Environment-Local.xcconfig";
 			buildSettings = {
+				API_HOST_NAME = "${API_HOST_NAME}";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = ShoppingItemApp/ShoppingItemApp.entitlements;
@@ -440,6 +441,7 @@
 			baseConfigurationReferenceAnchor = 81C9B70E2F049E93001F119C /* ShoppingItemApp */;
 			baseConfigurationReferenceRelativePath = Config/Environment.xcconfig;
 			buildSettings = {
+				API_HOST_NAME = "${API_HOST_NAME}";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = ShoppingItemApp/ShoppingItemApp.entitlements;

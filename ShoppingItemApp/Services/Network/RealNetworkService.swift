@@ -3,18 +3,24 @@ import Foundation
 
 class RealNetworkService: NetworkService {
     
-    let appConfig: AppConfig = .init(API_HOST: "http://localhost:3000")
-    private let http: Http = .init()
-
+    private let apiHost: String
+    private let http: Http
+    
+    init(apiHost: String, http: Http) {
+        self.apiHost = apiHost
+        self.http = http
+    }
+    
     private func uri(_ parts: String...) -> URL {
-        URL(string: "https://\(appConfig.API_HOST)/api/" + parts.joined(separator: "/"))!
+        return URL(string: "http://\(apiHost)/api/" + parts.joined(separator: "/"))!
     }
     
     // MARK: - Shopping Items
     
     func fetchShoppingItems() async throws -> [ShoppingItemDTO] {
         let url = uri("shopping")
-        return try await http.performRequest(url, method: .GET)
+        let response: ShoppingItemsResponse = try await http.performRequest(url, method: .GET)
+        return response.data
     }
     
     func getShoppingItem(_ id: String) async throws -> ShoppingItemDTO {
@@ -39,22 +45,23 @@ class RealNetworkService: NetworkService {
     
     // MARK: - Categories
     
-    func fetchCategories() async throws -> [Category] {
+    func fetchCategories() async throws -> [CategoryDTO] {
         let url = uri("categories")
-        return try await http.performRequest(url, method: .GET)
+        let response: CategoriesResponse = try await http.performRequest(url, method: .GET)
+        return response.data
     }
     
-    func getCategory(_ id: String) async throws -> Category {
+    func getCategory(_ id: String) async throws -> CategoryDTO {
         let url = uri("categories", id)
         return try await http.performRequest(url, method: .GET)
     }
     
-    func addCategory(_ category: Category) async throws -> Category {
+    func addCategory(_ category: CategoryDTO) async throws -> CategoryDTO {
         let url = uri("categories")
         return try await http.performRequest(url, method: .POST, body: category)
     }
     
-    func updateCategory(_ category: Category) async throws -> Category {
+    func updateCategory(_ category: CategoryDTO) async throws -> CategoryDTO {
         let url = uri("categories", category.id)
         return try await http.performRequest(url, method: .PUT, body: category)
     }

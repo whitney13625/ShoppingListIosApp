@@ -4,7 +4,7 @@ extension AppState {
     @MainActor
     func makeLoginViewModel() -> LoginViewModel {
         return LoginViewModel(
-            authState: self.dependencies.authState,
+            userSession: self.dependencies.userSession,
             authenticationService: self.dependencies.authenticationService
         )
     }
