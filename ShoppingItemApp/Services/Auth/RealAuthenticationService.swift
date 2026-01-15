@@ -21,7 +21,12 @@ struct RealAuthenticationService: AuthenticationService {
     }
     
     func login(username: String, password: String) async throws {
-        let response: LoginResponse = try await http.performRequest( uri("login"), method: .POST)
+        let url = uri("auth/login")
+        let response: LoginResponse = try await http.performRequest(
+            url, method: .POST,
+            body: ["email": username, "password": password]
+        )
+        print("Received token: \(response.token), url: \(url.absoluteString)")
         self.tokenProvider.saveToken(response.token)
     }
     

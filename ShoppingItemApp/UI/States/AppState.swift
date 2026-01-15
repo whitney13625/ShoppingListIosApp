@@ -12,7 +12,7 @@ class AppState {
     private var authState: AuthState
     
     
-    init(dependencies: DependencyContainer = .stub()) {
+    init(dependencies: DependencyContainer = .live()) {
         self.dependencies = dependencies
         self.authenticationService = dependencies.authenticationService
         self.networkService = dependencies.networkService
