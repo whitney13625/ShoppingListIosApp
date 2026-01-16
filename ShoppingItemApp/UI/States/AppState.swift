@@ -8,14 +8,14 @@ class AppState {
     
     let dependencies: DependencyContainer
     private var authenticationService: AuthenticationService
-    private var networkService: NetworkService
+    private var shoppingRepository: ShoppingRepository
     private var userSession: UserSession
     
     
     init(dependencies: DependencyContainer = .live()) {
         self.dependencies = dependencies
         self.authenticationService = dependencies.authenticationService
-        self.networkService = dependencies.networkService
+        self.shoppingRepository = dependencies.shoppingRepository
         self.userSession = dependencies.userSession
     }
     

@@ -11,6 +11,6 @@ extension AppState {
     
     @MainActor
     func makeShoppingListViewModel() -> ShoppingListViewModel {
-        ShoppingListViewModel(networkService: self.dependencies.networkService)
+        ShoppingListViewModel(shoppingRepository: self.dependencies.shoppingRepository)
     }
 }

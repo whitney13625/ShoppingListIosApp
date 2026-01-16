@@ -10,10 +10,10 @@ final class ShoppingListViewModel: LoadableViewModelProtocol {
     var shoppingItems: Loading<[ShoppingItem]> = .notLoaded
     var categories:  Loading<[Category]> = .notLoaded
     
-    private let networkService: NetworkService
+    private let shoppingRepository: ShoppingRepository
     
-    init(networkService: NetworkService) {
-        self.networkService = networkService
+    init(shoppingRepository: ShoppingRepository) {
+        self.shoppingRepository = shoppingRepository
         reload(showLoading: true)
     }
     
@@ -29,13 +29,13 @@ final class ShoppingListViewModel: LoadableViewModelProtocol {
             on: \.shoppingItems
         ) { [weak self] in
             guard let self else { return [] }
-            return try await self.networkService.fetchShoppingItems().map { .init(from: $0) }
+            return try await self.shoppingRepository.getShoppingItems()
         }
     }
     
     func addShoppingItem(_ item: ShoppingItem) async {
         do {
-            _ = try await networkService.addShoppingItem(item.toDTO())
+            try await shoppingRepository.addShoppingItem(item)
         } catch {
             print("Error adding shoping item: \(error.localizedDescription)")
         }
@@ -43,7 +43,7 @@ final class ShoppingListViewModel: LoadableViewModelProtocol {
     
     func updateShoppingItem(_ item: ShoppingItem) async {
         do {
-            _ = try await networkService.updateShoppingItem(item.toDTO())
+            try await shoppingRepository.updateShoppingItem(item)
         } catch {
             print("Error updating shoping item: \(error.localizedDescription)")
         }
@@ -56,14 +56,14 @@ final class ShoppingListViewModel: LoadableViewModelProtocol {
             on: \.categories
         ) { [weak self] in
             guard let self else { return [] }
-            return try await networkService.fetchCategories().map { .init(from: $0) }
+            return try await shoppingRepository.getCategories()
         }
     }
     
     // New: Add category
     func addCategory(_ category: Category) async {
         do {
-            _ = try await networkService.addCategory(category.toDTO())
+            try await shoppingRepository.addCategory(category)
             fetchCategories() // Refresh categories after adding
         } catch {
             print("Error adding category: \(error.localizedDescription)")
@@ -73,7 +73,7 @@ final class ShoppingListViewModel: LoadableViewModelProtocol {
     // New: Update category
     func updateCategory(_ category: Category) async {
         do {
-            _ = try await networkService.updateCategory(category.toDTO())
+            try await shoppingRepository.updateCategory(category)
             fetchCategories()
         } catch {
             print("Error updating category: \(error.localizedDescription)")
@@ -83,7 +83,7 @@ final class ShoppingListViewModel: LoadableViewModelProtocol {
     // New: Delete category
     func deleteCategory(_ category: Category) async {
         do {
-            try await networkService.deleteCategory(category.id)
+            try await shoppingRepository.deleteCategory(id: category.id)
             fetchCategories() // Refresh categories after deleting
         } catch {
             print("Error deleting category: \(error.localizedDescription)")
@@ -104,22 +104,22 @@ final class ShoppingListViewModel: LoadableViewModelProtocol {
         self.shoppingItems = .loaded(sortedItems)
 
         do {
-            try await networkService.updateShoppingItem(item.toDTO())
+            try await shoppingRepository.updateShoppingItem(item)
         } catch {
             // Rollback
             item.purchased = originalPurchased
         }
     }
     
-    private func updateItems(with dtos: [ShoppingItem]) {
+    private func updateItems(with items: [ShoppingItem]) {
         let currentItemsById = Dictionary(uniqueKeysWithValues: (shoppingItems.loadedValue ?? []).map { ($0.id, $0) })
         
-        let updatedList = dtos.map { dto -> ShoppingItem in
-            if let existingItem = currentItemsById[dto.id] {
-                existingItem.update(from: dto)
+        let updatedList = items.map { item -> ShoppingItem in
+            if let existingItem = currentItemsById[item.id] {
+                existingItem.update(from: item)
                 return existingItem
             } else {
-                return dto
+                return item
             }
         }
         
