@@ -25,7 +25,7 @@ struct DependencyContainer {
             tokenProvider: tokenProvider,
             coreDataStack: coreDataStack,
             authenticationService: RealAuthenticationService(apiHost: config.API_HOST_NAME, userSession: userSession),
-            shoppingRepository: ShoppingRepositoryImpl(remoteDataSource: remoteDataSource, localDataSource: localDataSource)
+            shoppingRepository: RealShoppingRepository(remoteDataSource: remoteDataSource, localDataSource: localDataSource)
         )
     }
 
@@ -44,7 +44,7 @@ struct DependencyContainer {
             tokenProvider: tokenProvider,
             coreDataStack: coreDataStack,
             authenticationService: RealAuthenticationService(apiHost: config.API_HOST_NAME, userSession: userSession),
-            shoppingRepository: ShoppingRepositoryImpl(remoteDataSource: remoteDataSource, localDataSource: localDataSource)
+            shoppingRepository: RealShoppingRepository(remoteDataSource: remoteDataSource, localDataSource: localDataSource)
         )
     }
     
@@ -62,7 +62,7 @@ struct DependencyContainer {
             tokenProvider: tokenProvider,
             coreDataStack: coreDataStack,
             authenticationService: StubAuthenticationService(userSession: userSession),
-            shoppingRepository: ShoppingRepositoryImpl(remoteDataSource: remoteDataSource, localDataSource: localDataSource)
+            shoppingRepository: RealShoppingRepository(remoteDataSource: remoteDataSource, localDataSource: localDataSource)
         )
     }
 }

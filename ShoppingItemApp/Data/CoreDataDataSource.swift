@@ -11,6 +11,177 @@ class CoreDataDataSource: LocalDataSource {
         self.coreDataStack = coreDataStack
     }
 
+    private class BatchImporter: ShoppingItemImporter {
+        private let context: NSManagedObjectContext
+        private let batchSize = 1000
+        private var count = 0
+        
+        private var categoryCache: [String: NSManagedObjectID]? = nil
+        
+        init(context: NSManagedObjectContext) {
+            self.context = context
+            self.context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+        }
+        
+        private func loadCategoryCache() throws {
+            
+            var cache: [String: NSManagedObjectID] = [:]
+            
+            let fetchRequest = CategoryEntity.fetchRequest()
+            fetchRequest.propertiesToFetch = ["id"]
+            
+            let entities = try context.fetch(fetchRequest)
+            
+            for entity in entities {
+                if let id = entity.id {
+                    cache[id] = entity.objectID
+                }
+            }
+            
+            self.categoryCache = cache
+            print("Category Cache built with \(cache.count) items")
+        }
+        
+        func addCategory(id: String, name: String) throws {
+            
+            let entity = CategoryEntity(context: context)
+            entity.id = id
+            entity.name = name
+            
+            try checkBatchSave()
+        }
+        
+        func addShoppingItem(id: String, name: String, quantity: Int, purchased: Bool, categoryId: String?) throws {
+            
+            let entity = ShoppingItemEntity(context: context)
+            entity.id = id
+            entity.name = name
+            entity.quantity = Int64(quantity)
+            entity.purchased = purchased
+            
+            if let catId = categoryId, let objectID = categoryCache?[catId] {
+                let category = try context.existingObject(with: objectID) as? CategoryEntity
+                entity.category = category
+            }
+            
+            try checkBatchSave()
+        }
+        
+        func finishAddingCategory() throws {
+            try saveAndReset()
+            try loadCategoryCache()
+        }
+        
+        func finishAddingShoppingItem() throws {
+            try saveAndReset()
+        }
+        
+        private func checkBatchSave() throws {
+            count += 1
+            if count % batchSize == 0 {
+                try saveAndReset()
+            }
+        }
+        
+        private func saveAndReset() throws {
+            if context.hasChanges {
+                do {
+                    try context.save()
+                    context.reset() // Release memory
+                    print("Batch saved and context reset at count: \(count)")
+                } catch {
+                    print("Save error: \(error)")
+                    throw error
+                }
+            }
+        }
+        
+        fileprivate func finalize() throws {
+            try saveAndReset()
+        }
+    }
+    
+    private struct CoreDataImporter: ShoppingItemImporter {
+        
+        let context: NSManagedObjectContext
+        
+        func addShoppingItem(id: String, name: String, quantity: Int, purchased: Bool, categoryId: String?) throws {
+            let entity = ShoppingItemEntity(context: context)
+            entity.id = id
+            entity.name = name
+            entity.quantity = Int64(quantity)
+            entity.purchased = purchased
+            if let categoryId {
+                
+                let fetchRequest: NSFetchRequest<CategoryEntity> = CategoryEntity.fetchRequest()
+                fetchRequest.predicate = NSPredicate(format: "id == %@", categoryId)
+                fetchRequest.fetchLimit = 1
+                
+                entity.category = try context.fetch(fetchRequest).first
+            }
+        }
+        
+        func addCategory(id: String, name: String) throws {
+            let entity = CategoryEntity(context: context)
+            entity.id = id
+            entity.name = name
+        }
+        
+        func finishAddingCategory() throws {
+            try saveAndReset()
+        }
+        func finishAddingShoppingItem() throws {
+            try saveAndReset()
+        }
+        
+        private func saveAndReset() throws {
+            if context.hasChanges {
+                do {
+                    try context.save()
+                    context.reset() // Release memory
+                    print("Saved and context reset")
+                } catch {
+                    print("Save error: \(error)")
+                    throw error
+                }
+            }
+        }
+        
+        fileprivate func finalize() throws {
+            try saveAndReset()
+        }
+    }
+    
+    
+    func performBatchImport(action: @escaping (ShoppingItemImporter) throws -> Void) async throws {
+        let context = coreDataStack.backgroundContext
+        
+        try await context.perform { [weak self] in
+            guard let self else { return }
+                
+            let importer = BatchImporter(context: context)
+            
+            try action(importer)
+            
+            try importer.finalize()
+        }
+    }
+    
+    
+    func performImport(action: @escaping (ShoppingItemImporter) throws -> Void) async throws {
+        let context = coreDataStack.backgroundContext
+        
+        try await context.perform { [weak self] in
+            guard let self else { return }
+            
+            let importer = CoreDataImporter(context: context)
+            
+            try action(importer)
+                
+            try importer.finalize()
+        }
+    }
+    
     // MARK: - Shopping Items
 
     func getShoppingItems() async throws -> [ShoppingItem] {

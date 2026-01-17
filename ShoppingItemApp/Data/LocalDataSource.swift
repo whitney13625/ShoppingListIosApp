@@ -3,6 +3,11 @@ import Foundation
 // With LocalDataSorce protocol, we can refactor the database to a different stack
 
 protocol LocalDataSource {
+    
+    // Importer
+    func performBatchImport(action: @escaping (ShoppingItemImporter) throws -> Void) async throws
+    func performImport(action: @escaping (ShoppingItemImporter) throws -> Void) async throws
+    
     // Shopping Items
     func getShoppingItems() async throws -> [ShoppingItem]
     func getShoppingItem(id: String) async throws -> ShoppingItem

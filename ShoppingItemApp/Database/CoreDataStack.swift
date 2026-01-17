@@ -32,9 +32,13 @@ class CoreDataStack {
     }
 
     var viewContext: NSManagedObjectContext {
-        return persistentContainer.viewContext
+        persistentContainer.viewContext
     }
 
+    var backgroundContext: NSManagedObjectContext {
+        persistentContainer.newBackgroundContext()
+    }
+    
     func saveContext () {
         let context = persistentContainer.viewContext
         if context.hasChanges {
