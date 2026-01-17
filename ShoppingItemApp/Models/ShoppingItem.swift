@@ -6,6 +6,8 @@ struct ShoppingItemApiModel: Codable, Identifiable, Hashable {
     let name: String
     var quantity: Int
     var category: CategoryApiModel
+    var categoryId: String?
+    var categoryName: String?
     var purchased: Bool = false
 }
 
@@ -39,6 +41,8 @@ class ShoppingItem: Identifiable {
             name: name,
             quantity: quantity,
             category: category.toDTO(),
+            categoryId: category.id,
+            categoryName: category.name,
             purchased: purchased
         )
     }

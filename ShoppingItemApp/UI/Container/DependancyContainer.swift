@@ -8,6 +8,7 @@ struct DependencyContainer {
     let dataSyncService: DataSyncService
     
     let authenticationService: AuthenticationService
+    let networkService: NetworkService
     let shoppingRepository: ShoppingRepository
     
     
@@ -26,6 +27,7 @@ struct DependencyContainer {
             tokenProvider: tokenProvider,
             dataSyncService: dataSyncService,
             authenticationService: RealAuthenticationService(apiHost: config.API_HOST_NAME, userSession: userSession),
+            networkService: networkService,
             shoppingRepository: RealShoppingRepository(localDataSource: localDataSource)
         )
     }
@@ -45,6 +47,7 @@ struct DependencyContainer {
             tokenProvider: tokenProvider,
             dataSyncService: dataSyncService,
             authenticationService: RealAuthenticationService(apiHost: config.API_HOST_NAME, userSession: userSession),
+            networkService: networkService,
             shoppingRepository: RealShoppingRepository(localDataSource: localDataSource)
         )
     }
@@ -63,6 +66,7 @@ struct DependencyContainer {
             tokenProvider: tokenProvider,
             dataSyncService: dataSyncService,
             authenticationService: StubAuthenticationService(userSession: userSession),
+            networkService: networkService,
             shoppingRepository: RealShoppingRepository(localDataSource: localDataSource)
         )
     }
@@ -71,24 +75,5 @@ struct DependencyContainer {
 extension DependencyContainer {
     func resolve<T>(_ keyPath: KeyPath<DependencyContainer, T>) -> T {
         return self[keyPath: keyPath]
-    }
-}
-
-extension DependencyContainer {
-    
-    @MainActor
-    func makeLoginViewModel() -> LoginViewModel {
-        return LoginViewModel(
-            userSession: userSession,
-            authenticationService: authenticationService
-        )
-    }
-    
-    @MainActor
-    func makeShoppingListViewModel() -> ShoppingListViewModel {
-        ShoppingListViewModel(
-            dataSyncService: dataSyncService,
-            shoppingRepository: shoppingRepository
-        )
     }
 }

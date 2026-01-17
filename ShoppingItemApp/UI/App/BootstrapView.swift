@@ -2,6 +2,7 @@
 import SwiftUI
 
 struct BootstrapView: View {
+    
     @Environment(AppState.self) private var appState
     
     var body: some View {
@@ -9,9 +10,9 @@ struct BootstrapView: View {
         case .splash:
             ProgressView("Splash...")
         case .authentication:
-            LoginView()
+            LoginView(viewModel: appState.loginViewModel)
         case .main:
-            ShoppingListView()
+            ShoppingListView(viewModel: appState.shoppingListViewModel)
         }
     }
 }

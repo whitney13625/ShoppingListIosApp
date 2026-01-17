@@ -88,5 +88,5 @@ extension Category: Equatable {
 }
 
 #Preview {
-    ShoppingItemDetailView(viewModel: AppState.preview.dependencies.makeShoppingListViewModel())
+    ShoppingItemDetailView(viewModel: AppState.preview.shoppingListViewModel)
 }
