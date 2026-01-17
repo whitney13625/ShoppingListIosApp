@@ -156,8 +156,7 @@ class CoreDataDataSource: LocalDataSource {
     func performBatchImport(action: @escaping (ShoppingItemImporter) throws -> Void) async throws {
         let context = coreDataStack.ovdrrideBackgroundContext
         
-        try await context.perform { [weak self] in
-            guard let self else { return }
+        try await context.perform {
                 
             let importer = BatchImporter(context: context)
             
@@ -256,12 +255,25 @@ class CoreDataDataSource: LocalDataSource {
     }
 
     func deleteAllShoppingItems() async throws {
-        let request = ShoppingItemEntity.fetchRequest()
-        let context = coreDataStack.viewContext
+        
+        let context = coreDataStack.ovdrrideBackgroundContext
+        
         try await context.perform {
-            let itemEntities = try context.fetch(request)
-            itemEntities.forEach { context.delete($0) }
-            try context.save()
+            let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "ShoppingItemEntity")
+            
+            let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+            deleteRequest.resultType = .resultTypeObjectIDs
+            
+            let result = try context.execute(deleteRequest) as? NSBatchDeleteResult
+            
+            if let objectIDs = result?.result as? [NSManagedObjectID] {
+                
+                let changes = [NSDeletedObjectsKey: objectIDs]
+                NSManagedObjectContext.mergeChanges(
+                    fromRemoteContextSave: changes,
+                    into: [self.coreDataStack.viewContext]
+                )
+            }
         }
     }
 

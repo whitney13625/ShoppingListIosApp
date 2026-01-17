@@ -14,6 +14,9 @@ class RemoteToLocalSyncService: DataSyncService {
     
     func sync() async throws {
         
+        try await localDataSource.deleteAllShoppingItems()
+        try await localDataSource.deleteAllCategories()
+        
         let cloudShoppingItems = try await networkService.fetchShoppingItems()
         let cloudCategoryItems = try await networkService.fetchCategories()
     

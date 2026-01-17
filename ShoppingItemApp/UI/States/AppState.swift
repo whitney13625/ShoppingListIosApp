@@ -29,6 +29,16 @@ class AppState {
         await dependencies.authenticationService.checkSession()
         isInitialLoading = false
     }
+    
+    @MainActor
+    func onEnterForeground() async {
+        
+    }
+    
+    @MainActor
+    func onEnterBackground() async {
+        
+    }
 }
 
 enum AppFlow {
