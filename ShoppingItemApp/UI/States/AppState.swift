@@ -31,7 +31,7 @@ class AppState {
 
     @MainActor
     func bootstrap() async {
-        await dependencies.authenticationService.checkSession()
+        userSession.restoreSession()
         isInitialLoading = false
     }
     
