@@ -15,7 +15,8 @@ struct DependencyContainer {
     static func live() -> DependencyContainer {
         let config = AppConfig.fromInfoPList()
         let tokenProvider = KeychainTokenManager()
-        let userSession = RealUserSession(tokenProvider: tokenProvider)
+        let userIdStorage = UserDefaultsUserIdStorage()
+        let userSession = RealUserSession(tokenProvider: tokenProvider, userIdStorage: userIdStorage)
         let coreDataStack = CoreDataStack(storeType: .onDisk)
         let networkService = RealNetworkService(apiHost: config.API_HOST_NAME, http: .init(userSession: userSession))
         let localDataSource = CoreDataDataSource(coreDataStack: coreDataStack)
@@ -35,7 +36,8 @@ struct DependencyContainer {
     static func dev() -> DependencyContainer {
         let config = AppConfig.fromInfoPList()
         let tokenProvider = KeychainTokenManager()
-        let userSession = RealUserSession(tokenProvider: tokenProvider)
+        let userIdStorage = UserDefaultsUserIdStorage()
+        let userSession = RealUserSession(tokenProvider: tokenProvider, userIdStorage: userIdStorage)
         let coreDataStack = CoreDataStack(storeType: .onDisk)
         let networkService = RealNetworkService(apiHost: config.API_HOST_NAME, http: .init(userSession: userSession))
         let localDataSource = CoreDataDataSource(coreDataStack: coreDataStack)
@@ -54,7 +56,8 @@ struct DependencyContainer {
     
     static func stub() -> DependencyContainer {
         let tokenProvider = StubTokenManager()
-        let userSession = RealUserSession(tokenProvider: tokenProvider)
+        let userIdStorage = StubUserIdStorage()
+        let userSession = RealUserSession(tokenProvider: tokenProvider, userIdStorage: userIdStorage)
         let coreDataStack = CoreDataStack(storeType: .inMemory)
         let networkService = StubNetworkService()
         let localDataSource = CoreDataDataSource(coreDataStack: coreDataStack)

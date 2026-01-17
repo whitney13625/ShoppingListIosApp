@@ -31,6 +31,7 @@ class AppState {
 
     @MainActor
     func bootstrap() async {
+        userSession.restoreSession()
         isInitialLoading = false
     }
     
