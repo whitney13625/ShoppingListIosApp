@@ -3,47 +3,47 @@ import Foundation
 
 class StubNetworkService: NetworkService {
     
-    private let fruitCategory = CategoryDTO(id: UUID().uuidString, name: "Fruits")
+    private let fruitCategory = CategoryApiModel(id: UUID().uuidString, name: "Fruits")
     
-    private var categories: Set<CategoryDTO>
-    private var shoppingItems: Set<ShoppingItemDTO>
+    private var categories: Set<CategoryApiModel>
+    private var shoppingItems: Set<ShoppingItemApiModel>
     
     init() {
-        let fruitCategory = CategoryDTO(id: UUID().uuidString, name: "Fruits")
+        let fruitCategory = CategoryApiModel(id: UUID().uuidString, name: "Fruits")
         
         self.categories = [
             fruitCategory,
-            CategoryDTO(id: UUID().uuidString, name: "Vegetables"),
-            CategoryDTO(id: UUID().uuidString, name: "Dairy"),
-            CategoryDTO(id: UUID().uuidString, name: "Meat")
+            CategoryApiModel(id: UUID().uuidString, name: "Vegetables"),
+            CategoryApiModel(id: UUID().uuidString, name: "Dairy"),
+            CategoryApiModel(id: UUID().uuidString, name: "Meat")
         ]
         
         self.shoppingItems = [
-            ShoppingItemDTO(id: UUID().uuidString, name: "Apple", quantity: 2, category: fruitCategory),
-            ShoppingItemDTO(id: UUID().uuidString, name: "Banana", quantity: 3, category: fruitCategory),
-            ShoppingItemDTO(id: UUID().uuidString, name: "Orange", quantity: 1, category: fruitCategory)
+            ShoppingItemApiModel(id: UUID().uuidString, name: "Apple", quantity: 2, category: fruitCategory),
+            ShoppingItemApiModel(id: UUID().uuidString, name: "Banana", quantity: 3, category: fruitCategory),
+            ShoppingItemApiModel(id: UUID().uuidString, name: "Orange", quantity: 1, category: fruitCategory)
         ]
     }
     
-    func fetchShoppingItems() async throws -> [ShoppingItemDTO] {
+    func fetchShoppingItems() async throws -> [ShoppingItemApiModel] {
         try await Task.sleep(for: .seconds(3))
         return Array(shoppingItems)
     }
     
-    func getShoppingItem(_ id: String) async throws -> ShoppingItemDTO {
+    func getShoppingItem(_ id: String) async throws -> ShoppingItemApiModel {
         guard let item = shoppingItems.first(where: { $0.id == id }) else {
             throw NetworkApiError.shoppingItemNotFound
         }
         return item
     }
     
-    func addShoppingItem(_ item: ShoppingItemDTO) async throws -> ShoppingItemDTO {
+    func addShoppingItem(_ item: ShoppingItemApiModel) async throws -> ShoppingItemApiModel {
         try await Task.sleep(for: .seconds(3))
         shoppingItems.insert(item)
         return item
     }
     
-    func updateShoppingItem(_ item: ShoppingItemDTO) async throws -> ShoppingItemDTO {
+    func updateShoppingItem(_ item: ShoppingItemApiModel) async throws -> ShoppingItemApiModel {
         try await Task.sleep(for: .seconds(3))
         shoppingItems.insert(item)
         return item
@@ -56,12 +56,12 @@ class StubNetworkService: NetworkService {
         }
     }
     
-    func fetchCategories() async throws -> [CategoryDTO] {
+    func fetchCategories() async throws -> [CategoryApiModel] {
         try await Task.sleep(for: .seconds(3))
         return Array(categories)
     }
     
-    func getCategory(_ id: String) async throws -> CategoryDTO {
+    func getCategory(_ id: String) async throws -> CategoryApiModel {
         try await Task.sleep(for: .seconds(3))
         guard let cat = categories.first(where: { $0.id == id }) else {
             throw NetworkApiError.categoryNotFound
@@ -69,13 +69,13 @@ class StubNetworkService: NetworkService {
         return cat
     }
     
-    func addCategory(_ category: CategoryDTO) async throws -> CategoryDTO {
+    func addCategory(_ category: CategoryApiModel) async throws -> CategoryApiModel {
         try await Task.sleep(for: .seconds(3))
         categories.insert(category)
         return category
     }
     
-    func updateCategory(_ category: CategoryDTO) async throws -> CategoryDTO {
+    func updateCategory(_ category: CategoryApiModel) async throws -> CategoryApiModel {
         try await Task.sleep(for: .seconds(3))
         categories.insert(category)
         return category

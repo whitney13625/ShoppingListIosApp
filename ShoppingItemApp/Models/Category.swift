@@ -1,6 +1,6 @@
 import Foundation
 
-struct CategoryDTO: Identifiable, Codable {
+struct CategoryApiModel: Identifiable, Codable {
     var id: String
     var name: String
 }
@@ -14,12 +14,12 @@ struct Category: Identifiable, Codable {
         self.name = name
     }
     
-    init(from dto: CategoryDTO) {
+    init(from dto: CategoryApiModel) {
         self.id = dto.id
         self.name = dto.name
     }
     
-    func toDTO() -> CategoryDTO {
+    func toDTO() -> CategoryApiModel {
         .init(
             id: id,
             name: name
@@ -27,7 +27,7 @@ struct Category: Identifiable, Codable {
     }
 }
 
-extension CategoryDTO: Hashable {
+extension CategoryApiModel: Hashable {
     func hash(into hasher: inout Hasher) {
         id.hash(into: &hasher)
     }

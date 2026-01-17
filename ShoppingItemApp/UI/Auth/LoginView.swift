@@ -1,37 +1,11 @@
-//
-//  LoginView.swift
-//  ShoppingItemApp
-//
-//  Created by Gemini on 1/13/26.
-//
 
 import SwiftUI
 
 struct LoginView: View {
     
     @Environment(AppState.self) private var appState
-    @State private var viewModel: LoginViewModel?
     
-    var body: some View {
-        Group {
-            if let viewModel {
-                LoginContentView(viewModel: viewModel)
-            }
-            else {
-                ProgressView()
-            }
-        }
-        .task {
-            if viewModel == nil {
-                viewModel = appState.makeLoginViewModel()
-            }
-        }
-    }
-}
-
-struct LoginContentView: View {
-    
-    fileprivate var viewModel: LoginViewModel
+    @State var viewModel: LoginViewModel
     @State private var error: Error?
     
     var body: some View {
@@ -81,6 +55,6 @@ struct LoginContentView: View {
 
 struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
-        LoginView()
+        LoginView(viewModel: AppState.preview.loginViewModel)
     }
 }

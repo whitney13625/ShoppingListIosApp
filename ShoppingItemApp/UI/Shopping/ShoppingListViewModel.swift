@@ -10,32 +10,49 @@ final class ShoppingListViewModel: LoadableViewModelProtocol {
     var shoppingItems: Loading<[ShoppingItem]> = .notLoaded
     var categories:  Loading<[Category]> = .notLoaded
     
+    private let shoppingRepository: ShoppingRepository
     private let networkService: NetworkService
+    private let dataSyncService: DataSyncService
     
-    init(networkService: NetworkService) {
+    init(dataSyncService: DataSyncService, networkService: NetworkService, shoppingRepository: ShoppingRepository) {
+        self.dataSyncService = dataSyncService
         self.networkService = networkService
-        reload(showLoading: true)
+        self.shoppingRepository = shoppingRepository
     }
     
-    func reload(showLoading: Bool? = nil) {
-        let showLoading = showLoading ?? shoppingItems.loadedValue?.isEmpty ?? true
-        fetchCategories(showLoading: showLoading) // Fetch categories on init
-        fetchShoppingItems(showLoading: showLoading)
+    func resync() async {
+        await Task.detached(priority: .background) { [weak self] in
+             try? await self?.dataSyncService.sync()
+        }.value
     }
     
-    func fetchShoppingItems(showLoading: Bool) {
+    func refetch() {
+        fetchCategories() // Fetch categories on init
+        fetchShoppingItems()
+    }
+    
+    func reload() {
+        Task {
+            await resync()
+            await MainActor.run {
+                refetch()
+            }
+        }
+    }
+    
+    func fetchShoppingItems() {
         performLoad(
-            showLoading: showLoading,
             on: \.shoppingItems
         ) { [weak self] in
             guard let self else { return [] }
-            return try await self.networkService.fetchShoppingItems().map { .init(from: $0) }
+            return try await self.shoppingRepository.getShoppingItems()
         }
     }
     
     func addShoppingItem(_ item: ShoppingItem) async {
         do {
-            _ = try await networkService.addShoppingItem(item.toDTO())
+            try await networkService.addShoppingItem(item.toDTO())
+            try await shoppingRepository.addShoppingItem(item)
         } catch {
             print("Error adding shoping item: \(error.localizedDescription)")
         }
@@ -43,7 +60,7 @@ final class ShoppingListViewModel: LoadableViewModelProtocol {
     
     func updateShoppingItem(_ item: ShoppingItem) async {
         do {
-            _ = try await networkService.updateShoppingItem(item.toDTO())
+            try await updateItem(item)
         } catch {
             print("Error updating shoping item: \(error.localizedDescription)")
         }
@@ -56,15 +73,15 @@ final class ShoppingListViewModel: LoadableViewModelProtocol {
             on: \.categories
         ) { [weak self] in
             guard let self else { return [] }
-            return try await networkService.fetchCategories().map { .init(from: $0) }
+            return try await shoppingRepository.getCategories()
         }
     }
     
     // New: Add category
     func addCategory(_ category: Category) async {
         do {
-            _ = try await networkService.addCategory(category.toDTO())
-            fetchCategories() // Refresh categories after adding
+            try await networkService.addCategory(category.toDTO())
+            try await shoppingRepository.addCategory(category)
         } catch {
             print("Error adding category: \(error.localizedDescription)")
         }
@@ -73,7 +90,8 @@ final class ShoppingListViewModel: LoadableViewModelProtocol {
     // New: Update category
     func updateCategory(_ category: Category) async {
         do {
-            _ = try await networkService.updateCategory(category.toDTO())
+            try await networkService.updateCategory(category.toDTO())
+            try await shoppingRepository.updateCategory(category)
             fetchCategories()
         } catch {
             print("Error updating category: \(error.localizedDescription)")
@@ -84,6 +102,7 @@ final class ShoppingListViewModel: LoadableViewModelProtocol {
     func deleteCategory(_ category: Category) async {
         do {
             try await networkService.deleteCategory(category.id)
+            try await shoppingRepository.deleteCategory(id: category.id)
             fetchCategories() // Refresh categories after deleting
         } catch {
             print("Error deleting category: \(error.localizedDescription)")
@@ -104,22 +123,27 @@ final class ShoppingListViewModel: LoadableViewModelProtocol {
         self.shoppingItems = .loaded(sortedItems)
 
         do {
-            try await networkService.updateShoppingItem(item.toDTO())
+            try await updateItem(item)
         } catch {
             // Rollback
             item.purchased = originalPurchased
         }
     }
     
-    private func updateItems(with dtos: [ShoppingItem]) {
+    private func updateItem(_ item: ShoppingItem) async throws {
+        try await networkService.updateShoppingItem(item.toDTO())
+        try await shoppingRepository.updateShoppingItem(item)
+    }
+    
+    private func updateItems(with items: [ShoppingItem]) {
         let currentItemsById = Dictionary(uniqueKeysWithValues: (shoppingItems.loadedValue ?? []).map { ($0.id, $0) })
         
-        let updatedList = dtos.map { dto -> ShoppingItem in
-            if let existingItem = currentItemsById[dto.id] {
-                existingItem.update(from: dto)
+        let updatedList = items.map { item -> ShoppingItem in
+            if let existingItem = currentItemsById[item.id] {
+                existingItem.update(from: item)
                 return existingItem
             } else {
-                return dto
+                return item
             }
         }
         

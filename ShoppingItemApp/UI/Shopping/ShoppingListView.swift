@@ -3,27 +3,7 @@ import SwiftUI
 struct ShoppingListView: View {
     @Environment(AppState.self) private var appState
     
-    @State private var viewModel: ShoppingListViewModel?
-    
-    var body: some View {
-        Group {
-            if let viewModel {
-                ShoppingListContentView(viewModel: viewModel)
-            } else {
-                ProgressView()
-            }
-        }
-        .task {
-            if viewModel == nil {
-                viewModel = appState.makeShoppingListViewModel()
-            }
-        }
-    }
-}
-
-struct ShoppingListContentView: View {
-    
-    fileprivate let viewModel: ShoppingListViewModel
+    @State var viewModel: ShoppingListViewModel
     @State private var showingAddItemSheet = false
     @State private var showingCategoryListSheet = false
     
@@ -48,6 +28,9 @@ struct ShoppingListContentView: View {
                 .showAddItem(binding: $showingAddItemSheet, viewModel: viewModel)
                 .sheet(isPresented: $showingCategoryListSheet) {
                     CategoryListView(viewModel: viewModel)
+                }
+                .refreshable {
+                    viewModel.reload()
                 }
                 .task {
                     viewModel.reload()
@@ -129,5 +112,5 @@ fileprivate struct ShowAddItemViewModifier: ViewModifier {
 }
 
 #Preview {
-    ShoppingListContentView(viewModel: AppState.preview.makeShoppingListViewModel())
+    ShoppingListView(viewModel: AppState.preview.shoppingListViewModel)
 }
