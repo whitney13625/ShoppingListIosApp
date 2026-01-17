@@ -3,57 +3,49 @@ import Foundation
 
 class RealShoppingRepository: ShoppingRepository {
     
-    private let remoteDataSource: RemoteDataSource
     private let localDataSource: LocalDataSource
 
-    init(remoteDataSource: RemoteDataSource, localDataSource: LocalDataSource) {
-        self.remoteDataSource = remoteDataSource
+    init(localDataSource: LocalDataSource) {
         self.localDataSource = localDataSource
     }
 
     func getShoppingItems() async throws -> [ShoppingItem] {
-        // TODO: Implement offline logic
-        let dtos = try await remoteDataSource.fetchShoppingItems()
-        return dtos.map { ShoppingItem(from: $0) }
+        try await localDataSource.getShoppingItems()
     }
 
     func getShoppingItem(id: String) async throws -> ShoppingItem {
-        let dto = try await remoteDataSource.getShoppingItem(id)
-        return ShoppingItem(from: dto)
+        try await localDataSource.getShoppingItem(id: id)
     }
 
     func addShoppingItem(_ item: ShoppingItem) async throws {
-        _ = try await remoteDataSource.addShoppingItem(item.toDTO())
+        _ = try await localDataSource.addShoppingItem(item)
     }
 
     func updateShoppingItem(_ item: ShoppingItem) async throws {
-        _ = try await remoteDataSource.updateShoppingItem(item.toDTO())
+        _ = try await localDataSource.updateShoppingItem(item)
     }
 
     func deleteShoppingItem(id: String) async throws {
-        try await remoteDataSource.deleteShoppingItem(id)
+        try await localDataSource.deleteShoppingItem(id: id)
     }
 
     func getCategories() async throws -> [Category] {
-        // TODO: Implement offline logic
-        let dtos = try await remoteDataSource.fetchCategories()
-        return dtos.map { Category(from: $0) }
+        try await localDataSource.getCategories()
     }
 
     func getCategory(id: String) async throws -> Category {
-        let dto = try await remoteDataSource.getCategory(id)
-        return Category(from: dto)
+        try await localDataSource.getCategory(id: id)
     }
 
     func addCategory(_ category: Category) async throws {
-        _ = try await remoteDataSource.addCategory(category.toDTO())
+        _ = try await localDataSource.addCategory(category)
     }
 
     func updateCategory(_ category: Category) async throws {
-        _ = try await remoteDataSource.updateCategory(category.toDTO())
+        _ = try await localDataSource.updateCategory(category)
     }
 
     func deleteCategory(id: String) async throws {
-        try await remoteDataSource.deleteCategory(id)
+        try await localDataSource.deleteCategory(id: id)
     }
 }

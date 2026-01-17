@@ -4,18 +4,18 @@ protocol DataSyncService {
 }
 
 class RemoteToLocalSyncService: DataSyncService {
-    private let remoteDataSource: RemoteDataSource
+    private let networkService: NetworkService
     private let localDataSource: LocalDataSource
 
-    init(remoteDataSource: RemoteDataSource, localDataSource: LocalDataSource) {
-        self.remoteDataSource = remoteDataSource
+    init(networkService: NetworkService, localDataSource: LocalDataSource) {
+        self.networkService = networkService
         self.localDataSource = localDataSource
     }
     
     func sync() async throws {
         
-        let cloudShoppingItems = try await remoteDataSource.fetchShoppingItems()
-        let cloudCategoryItems = try await remoteDataSource.fetchCategories()
+        let cloudShoppingItems = try await networkService.fetchShoppingItems()
+        let cloudCategoryItems = try await networkService.fetchCategories()
     
         try await localDataSource.performBatchImport() { importer in
             for cat in cloudCategoryItems {

@@ -1,11 +1,11 @@
 import Foundation
 import Observation
 
-struct ShoppingItemDTO: Codable, Identifiable, Hashable {
+struct ShoppingItemApiModel: Codable, Identifiable, Hashable {
     let id: String
     let name: String
     var quantity: Int
-    var category: CategoryDTO
+    var category: CategoryApiModel
     var purchased: Bool = false
 }
 
@@ -25,7 +25,7 @@ class ShoppingItem: Identifiable {
         self.purchased = purchased
     }
     
-    init(from dto: ShoppingItemDTO) {
+    init(from dto: ShoppingItemApiModel) {
         self.id = dto.id
         self.name = dto.name
         self.quantity = dto.quantity
@@ -33,7 +33,7 @@ class ShoppingItem: Identifiable {
         self.purchased = dto.purchased
     }
     
-    func toDTO() -> ShoppingItemDTO {
+    func toDTO() -> ShoppingItemApiModel {
         .init(
             id: id,
             name: name,

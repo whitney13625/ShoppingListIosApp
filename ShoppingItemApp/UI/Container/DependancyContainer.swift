@@ -5,7 +5,7 @@ struct DependencyContainer {
     
     let userSession: UserSession
     let tokenProvider: TokenProvider
-    let coreDataStack: CoreDataStack
+    let dataSyncService: DataSyncService
     
     let authenticationService: AuthenticationService
     let shoppingRepository: ShoppingRepository
@@ -16,16 +16,16 @@ struct DependencyContainer {
         let userSession = RealUserSession(tokenProvider: tokenProvider)
         let coreDataStack = CoreDataStack(storeType: .onDisk)
         let networkService = RealNetworkService(apiHost: config.API_HOST_NAME, http: .init(userSession: userSession))
-        let remoteDataSource = RemoteDataSourceImpl(networkService: networkService)
         let localDataSource = CoreDataDataSource(coreDataStack: coreDataStack)
+        let dataSyncService = RemoteToLocalSyncService(networkService: networkService, localDataSource: localDataSource)
         
         return DependencyContainer(
             appConfig: config,
             userSession: userSession,
             tokenProvider: tokenProvider,
-            coreDataStack: coreDataStack,
+            dataSyncService: dataSyncService,
             authenticationService: RealAuthenticationService(apiHost: config.API_HOST_NAME, userSession: userSession),
-            shoppingRepository: RealShoppingRepository(remoteDataSource: remoteDataSource, localDataSource: localDataSource)
+            shoppingRepository: RealShoppingRepository(localDataSource: localDataSource)
         )
     }
 
@@ -35,16 +35,16 @@ struct DependencyContainer {
         let userSession = RealUserSession(tokenProvider: tokenProvider)
         let coreDataStack = CoreDataStack(storeType: .onDisk)
         let networkService = RealNetworkService(apiHost: config.API_HOST_NAME, http: .init(userSession: userSession))
-        let remoteDataSource = RemoteDataSourceImpl(networkService: networkService)
         let localDataSource = CoreDataDataSource(coreDataStack: coreDataStack)
-
+        let dataSyncService = RemoteToLocalSyncService(networkService: networkService, localDataSource: localDataSource)
+        
         return DependencyContainer(
             appConfig: config,
             userSession: userSession,
             tokenProvider: tokenProvider,
-            coreDataStack: coreDataStack,
+            dataSyncService: dataSyncService,
             authenticationService: RealAuthenticationService(apiHost: config.API_HOST_NAME, userSession: userSession),
-            shoppingRepository: RealShoppingRepository(remoteDataSource: remoteDataSource, localDataSource: localDataSource)
+            shoppingRepository: RealShoppingRepository(localDataSource: localDataSource)
         )
     }
     
@@ -53,16 +53,16 @@ struct DependencyContainer {
         let userSession = RealUserSession(tokenProvider: tokenProvider)
         let coreDataStack = CoreDataStack(storeType: .inMemory)
         let networkService = StubNetworkService()
-        let remoteDataSource = RemoteDataSourceImpl(networkService: networkService)
         let localDataSource = CoreDataDataSource(coreDataStack: coreDataStack)
-
+        let dataSyncService = RemoteToLocalSyncService(networkService: networkService, localDataSource: localDataSource)
+        
         return DependencyContainer(
             appConfig: .fromInfoPList(),
             userSession: userSession,
             tokenProvider: tokenProvider,
-            coreDataStack: coreDataStack,
+            dataSyncService: dataSyncService,
             authenticationService: StubAuthenticationService(userSession: userSession),
-            shoppingRepository: RealShoppingRepository(remoteDataSource: remoteDataSource, localDataSource: localDataSource)
+            shoppingRepository: RealShoppingRepository(localDataSource: localDataSource)
         )
     }
 }

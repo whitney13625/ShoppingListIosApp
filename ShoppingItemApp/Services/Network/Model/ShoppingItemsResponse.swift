@@ -3,5 +3,5 @@ struct ShoppingItemsResponse: Codable {
     let total: Int
     let page: Int
     let totalPages: Int
-    let data: [ShoppingItemDTO]
+    let data: [ShoppingItemApiModel]
 }

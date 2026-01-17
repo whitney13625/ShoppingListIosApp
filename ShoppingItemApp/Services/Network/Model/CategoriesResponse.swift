@@ -4,5 +4,5 @@ struct CategoriesResponse: Codable {
     let total: Int
     let page: Int
     let totalPages: Int
-    let data: [CategoryDTO]
+    let data: [CategoryApiModel]
 }
