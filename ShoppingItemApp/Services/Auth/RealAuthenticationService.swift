@@ -17,11 +17,6 @@ struct RealAuthenticationService: AuthenticationService {
         return URL(string: "http://\(apiHost)/api/" + parts.joined(separator: "/"))!
     }
     
-    func checkSession() async -> Bool {
-        // TODO: Refresh token for user session
-        return false
-    }
-    
     func login(username: String, password: String) async throws {
         do {
             let url = uri("auth/login")

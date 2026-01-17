@@ -10,10 +10,6 @@ class StubAuthenticationService: AuthenticationService {
         self.userSession = userSession
     }
     
-    func checkSession() async -> Bool {
-        return false
-    }
-    
     func login(username: String, password: String) async throws {
         if username.lowercased() == "fail" {
             throw AuthError.invalidCredentials
