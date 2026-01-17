@@ -10,6 +10,7 @@ struct DependencyContainer {
     let authenticationService: AuthenticationService
     let shoppingRepository: ShoppingRepository
     
+    
     static func live() -> DependencyContainer {
         let config = AppConfig.fromInfoPList()
         let tokenProvider = KeychainTokenManager()
@@ -63,6 +64,31 @@ struct DependencyContainer {
             dataSyncService: dataSyncService,
             authenticationService: StubAuthenticationService(userSession: userSession),
             shoppingRepository: RealShoppingRepository(localDataSource: localDataSource)
+        )
+    }
+}
+
+extension DependencyContainer {
+    func resolve<T>(_ keyPath: KeyPath<DependencyContainer, T>) -> T {
+        return self[keyPath: keyPath]
+    }
+}
+
+extension DependencyContainer {
+    
+    @MainActor
+    func makeLoginViewModel() -> LoginViewModel {
+        return LoginViewModel(
+            userSession: userSession,
+            authenticationService: authenticationService
+        )
+    }
+    
+    @MainActor
+    func makeShoppingListViewModel() -> ShoppingListViewModel {
+        ShoppingListViewModel(
+            dataSyncService: dataSyncService,
+            shoppingRepository: shoppingRepository
         )
     }
 }

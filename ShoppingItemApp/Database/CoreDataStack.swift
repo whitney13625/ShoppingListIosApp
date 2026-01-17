@@ -22,6 +22,9 @@ class CoreDataStack {
                 fatalError("Unresolved error \(error), \(error.userInfo)")
             }
         })
+        
+        container.viewContext.automaticallyMergesChangesFromParent = true
+        
         return container
     }()
     
@@ -35,8 +38,16 @@ class CoreDataStack {
         persistentContainer.viewContext
     }
 
-    var backgroundContext: NSManagedObjectContext {
-        persistentContainer.newBackgroundContext()
+    var ovdrrideBackgroundContext: NSManagedObjectContext {
+        let context = persistentContainer.newBackgroundContext()
+        context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+        return context
+    }
+    
+    var keepStoreBackgroundContext: NSManagedObjectContext {
+        let context = persistentContainer.newBackgroundContext()
+        context.mergePolicy = NSMergeByPropertyStoreTrumpMergePolicy
+        return context
     }
     
     func saveContext () {

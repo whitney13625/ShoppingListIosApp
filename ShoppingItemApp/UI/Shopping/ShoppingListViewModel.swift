@@ -11,21 +11,35 @@ final class ShoppingListViewModel: LoadableViewModelProtocol {
     var categories:  Loading<[Category]> = .notLoaded
     
     private let shoppingRepository: ShoppingRepository
+    private let dataSyncService: DataSyncService
     
-    init(shoppingRepository: ShoppingRepository) {
+    init(dataSyncService: DataSyncService, shoppingRepository: ShoppingRepository) {
+        self.dataSyncService = dataSyncService
         self.shoppingRepository = shoppingRepository
-        reload(showLoading: true)
     }
     
-    func reload(showLoading: Bool? = nil) {
-        let showLoading = showLoading ?? shoppingItems.loadedValue?.isEmpty ?? true
-        fetchCategories(showLoading: showLoading) // Fetch categories on init
-        fetchShoppingItems(showLoading: showLoading)
+    func resync() async {
+        await Task.detached(priority: .background) { [weak self] in
+             try? await self?.dataSyncService.sync()
+        }.value
     }
     
-    func fetchShoppingItems(showLoading: Bool) {
+    func refetch() {
+        fetchCategories() // Fetch categories on init
+        fetchShoppingItems()
+    }
+    
+    func reload() {
+        Task {
+            await resync()
+            await MainActor.run {
+                refetch()
+            }
+        }
+    }
+    
+    func fetchShoppingItems() {
         performLoad(
-            showLoading: showLoading,
             on: \.shoppingItems
         ) { [weak self] in
             guard let self else { return [] }

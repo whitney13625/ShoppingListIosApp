@@ -154,7 +154,7 @@ class CoreDataDataSource: LocalDataSource {
     
     
     func performBatchImport(action: @escaping (ShoppingItemImporter) throws -> Void) async throws {
-        let context = coreDataStack.backgroundContext
+        let context = coreDataStack.ovdrrideBackgroundContext
         
         try await context.perform { [weak self] in
             guard let self else { return }
@@ -169,10 +169,9 @@ class CoreDataDataSource: LocalDataSource {
     
     
     func performImport(action: @escaping (ShoppingItemImporter) throws -> Void) async throws {
-        let context = coreDataStack.backgroundContext
+        let context = coreDataStack.ovdrrideBackgroundContext
         
-        try await context.perform { [weak self] in
-            guard let self else { return }
+        try await context.perform {
             
             let importer = CoreDataImporter(context: context)
             

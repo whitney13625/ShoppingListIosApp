@@ -23,7 +23,7 @@ struct LoginView: View {
         }
         .task {
             if viewModel == nil {
-                viewModel = appState.makeLoginViewModel()
+                viewModel = appState.dependencies.makeLoginViewModel()
             }
         }
     }

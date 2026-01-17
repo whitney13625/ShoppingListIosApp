@@ -15,7 +15,7 @@ struct ShoppingListView: View {
         }
         .task {
             if viewModel == nil {
-                viewModel = appState.makeShoppingListViewModel()
+                viewModel = appState.dependencies.makeShoppingListViewModel()
             }
         }
     }
@@ -48,6 +48,9 @@ struct ShoppingListContentView: View {
                 .showAddItem(binding: $showingAddItemSheet, viewModel: viewModel)
                 .sheet(isPresented: $showingCategoryListSheet) {
                     CategoryListView(viewModel: viewModel)
+                }
+                .refreshable {
+                    viewModel.reload()
                 }
                 .task {
                     viewModel.reload()
@@ -129,5 +132,5 @@ fileprivate struct ShowAddItemViewModifier: ViewModifier {
 }
 
 #Preview {
-    ShoppingListContentView(viewModel: AppState.preview.makeShoppingListViewModel())
+    ShoppingListContentView(viewModel: AppState.preview.dependencies.makeShoppingListViewModel())
 }
