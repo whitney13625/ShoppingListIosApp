@@ -6,6 +6,7 @@ struct ShoppingListView: View {
     @State var viewModel: ShoppingListViewModel
     @State private var showingAddItemSheet = false
     @State private var showingCategoryListSheet = false
+    @State private var error: Error?
     
     var body: some View {
         NavigationStack {
@@ -30,10 +31,10 @@ struct ShoppingListView: View {
                     CategoryListView(viewModel: viewModel)
                 }
                 .refreshable {
-                    viewModel.reload()
+                    await viewModel.reload()
                 }
                 .task {
-                    viewModel.reload()
+                    await viewModel.reload()
                 }
         }
     }

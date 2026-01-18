@@ -9,9 +9,8 @@ class LoginViewModel {
     var username = ""
     var password = ""
     
-    let userSession: UserSession
+    private let userSession: UserSession
     private let authenticationService: AuthenticationService
-    
     
     init(userSession: UserSession, authenticationService: AuthenticationService) {
         self.userSession = userSession
@@ -20,9 +19,10 @@ class LoginViewModel {
     
     func login() async throws {
         do {
-            try await authenticationService.login(username: username, password: password)
-        }
-        catch {
+            let (user, token) = try await authenticationService.login(username: username, password: password)
+            try self.userSession.storeSession(user: user, token: token)
+        } catch {
+            self.userSession.onError(error: error)
             throw error
         }
     }

@@ -4,9 +4,9 @@ import Foundation
 class RealNetworkService: NetworkService {
     
     private let apiHost: String
-    private let http: Http
+    private let http: HttpProtocol
     
-    init(apiHost: String, http: Http) {
+    init(apiHost: String, http: HttpProtocol) {
         self.apiHost = apiHost
         self.http = http
     }

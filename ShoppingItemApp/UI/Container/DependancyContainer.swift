@@ -18,8 +18,11 @@ struct DependencyContainer {
         let userIdStorage = UserDefaultsUserIdStorage()
         let userSession = RealUserSession(tokenProvider: tokenProvider, userIdStorage: userIdStorage)
         let coreDataStack = CoreDataStack(storeType: .onDisk)
-        let networkService = RealNetworkService(apiHost: config.API_HOST_NAME, http: .init(userSession: userSession))
+        let http = Http(userSession: userSession)
+        let authService = RealAuthenticationService(apiHost: config.API_HOST_NAME, http: http)
+        let networkService = RealNetworkService(apiHost: config.API_HOST_NAME, http: http)
         let localDataSource = CoreDataDataSource(coreDataStack: coreDataStack)
+        let shoppingRepository = RealShoppingRepository(localDataSource: localDataSource)
         let dataSyncService = RemoteToLocalSyncService(networkService: networkService, localDataSource: localDataSource)
         
         return DependencyContainer(
@@ -27,30 +30,9 @@ struct DependencyContainer {
             userSession: userSession,
             tokenProvider: tokenProvider,
             dataSyncService: dataSyncService,
-            authenticationService: RealAuthenticationService(apiHost: config.API_HOST_NAME, userSession: userSession),
+            authenticationService: authService,
             networkService: networkService,
-            shoppingRepository: RealShoppingRepository(localDataSource: localDataSource)
-        )
-    }
-
-    static func dev() -> DependencyContainer {
-        let config = AppConfig.fromInfoPList()
-        let tokenProvider = KeychainTokenManager()
-        let userIdStorage = UserDefaultsUserIdStorage()
-        let userSession = RealUserSession(tokenProvider: tokenProvider, userIdStorage: userIdStorage)
-        let coreDataStack = CoreDataStack(storeType: .onDisk)
-        let networkService = RealNetworkService(apiHost: config.API_HOST_NAME, http: .init(userSession: userSession))
-        let localDataSource = CoreDataDataSource(coreDataStack: coreDataStack)
-        let dataSyncService = RemoteToLocalSyncService(networkService: networkService, localDataSource: localDataSource)
-        
-        return DependencyContainer(
-            appConfig: config,
-            userSession: userSession,
-            tokenProvider: tokenProvider,
-            dataSyncService: dataSyncService,
-            authenticationService: RealAuthenticationService(apiHost: config.API_HOST_NAME, userSession: userSession),
-            networkService: networkService,
-            shoppingRepository: RealShoppingRepository(localDataSource: localDataSource)
+            shoppingRepository: shoppingRepository
         )
     }
     
@@ -59,8 +41,10 @@ struct DependencyContainer {
         let userIdStorage = StubUserIdStorage()
         let userSession = RealUserSession(tokenProvider: tokenProvider, userIdStorage: userIdStorage)
         let coreDataStack = CoreDataStack(storeType: .inMemory)
+        let authService = StubAuthenticationService()
         let networkService = StubNetworkService()
         let localDataSource = CoreDataDataSource(coreDataStack: coreDataStack)
+        let shoppingRepository = RealShoppingRepository(localDataSource: localDataSource)
         let dataSyncService = RemoteToLocalSyncService(networkService: networkService, localDataSource: localDataSource)
         
         return DependencyContainer(
@@ -68,9 +52,9 @@ struct DependencyContainer {
             userSession: userSession,
             tokenProvider: tokenProvider,
             dataSyncService: dataSyncService,
-            authenticationService: StubAuthenticationService(userSession: userSession),
+            authenticationService: authService,
             networkService: networkService,
-            shoppingRepository: RealShoppingRepository(localDataSource: localDataSource)
+            shoppingRepository: shoppingRepository
         )
     }
 }

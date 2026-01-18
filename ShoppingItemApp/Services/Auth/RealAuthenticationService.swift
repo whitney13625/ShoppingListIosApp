@@ -4,37 +4,30 @@ import Foundation
 struct RealAuthenticationService: AuthenticationService {
     
     private let apiHost: String
-    private let userSession: UserSession
-    private let http: Http
+    private let http: HttpProtocol
     
-    init(apiHost: String, userSession: UserSession) {
+    init(apiHost: String, http: HttpProtocol) {
         self.apiHost = apiHost
-        self.userSession = userSession
-        self.http = Http(userSession: userSession)
+        self.http = http
     }
     
     private func uri(_ parts: String...) -> URL {
         return URL(string: "http://\(apiHost)/api/" + parts.joined(separator: "/"))!
     }
     
-    func login(username: String, password: String) async throws {
-        do {
-            let url = uri("auth/login")
-            let response: LoginResponse = try await http.performRequest(
-                url, method: .POST,
-                body: ["email": username, "password": password],
-                authRequired: false
-            )
-            print("Received token: \(response.token), url: \(url.absoluteString)")
-            try self.userSession.storeSession(user: .init(from: response.user), token: response.token)
-        } catch {
-            self.userSession.onError(error: error)
-            throw error
-        }
+    func login(username: String, password: String) async throws -> (User, String) {
+        let url = uri("auth/login")
+        let response: LoginResponse = try await http.performRequest(
+            url, method: .POST,
+            body: ["email": username, "password": password],
+            authRequired: false
+        )
+        print("Received token: \(response.token), url: \(url.absoluteString)")
+        return (.init(from: response.user), response.token)
     }
     
     func logout() async throws {
-        try self.userSession.clear()
+        // TODO: Notify backend
     }
 }
 
