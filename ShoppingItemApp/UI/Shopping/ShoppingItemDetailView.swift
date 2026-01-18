@@ -7,6 +7,7 @@ struct ShoppingItemDetailView: View {
     
     let originalItem: ShoppingItem?
     @State private var draftItem: ShoppingItem
+    @State var error: Error?
     
     private var isNewItem: Bool {
         originalItem == nil
@@ -63,19 +64,24 @@ struct ShoppingItemDetailView: View {
                     }
                 }
             }
+            .showError(for: $error)
         }
     }
     
     private func saveAction() {
         Task {
-            if let original = originalItem {
-                original.update(from: draftItem)
-                await viewModel.updateShoppingItem(original)
+            do {
+                if let original = originalItem {
+                    original.update(from: draftItem)
+                    try await viewModel.updateShoppingItem(original)
+                }
+                else {
+                    try await viewModel.addShoppingItem(draftItem)
+                }
+                dismiss()
+            } catch {
+                self.error = error
             }
-            else {
-                await viewModel.addShoppingItem(draftItem)
-            }
-            dismiss()
         }
     }
 }

@@ -70,3 +70,9 @@ extension ShoppingItem: Equatable {
         lhs.id == rhs.id
     }
 }
+
+extension ShoppingItem: Hashable {
+    func hash(into hasher: inout Hasher) {
+        id.hash(into: &hasher)
+    }
+}

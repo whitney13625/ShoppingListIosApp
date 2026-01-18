@@ -5,6 +5,7 @@ struct CategoryListView: View {
     private var viewModel: ShoppingListViewModel
     @State private var showingAddCategorySheet = false
     @State private var categoryToEdit: Category?
+    @State var error: Error?
     
     init(viewModel: ShoppingListViewModel) {
         self.viewModel = viewModel
@@ -42,6 +43,7 @@ struct CategoryListView: View {
             .sheet(isPresented: $showingAddCategorySheet) {
                 AddEditCategoryView(viewModel: viewModel, category: categoryToEdit)
             }
+            .showError(for: $error)
         }
     }
     
@@ -53,7 +55,17 @@ struct CategoryListView: View {
                 return
             }
             Task {
-                await viewModel.deleteCategory(loaded[index])
+                try await viewModel.deleteCategory(loaded[index])
+            }
+        }
+    }
+    
+    func deleteCategory(_ category: Category) {
+        Task {
+            do {
+                try await viewModel.deleteCategory(category)
+            } catch {
+                self.error = error
             }
         }
     }
@@ -64,11 +76,13 @@ struct AddEditCategoryView: View {
     @State private var categoryName: String
     private var viewModel: ShoppingListViewModel
     private var categoryToEdit: Category?
+    @State var error: Error?
     
     init(viewModel: ShoppingListViewModel, category: Category? = nil) {
         self.viewModel = viewModel
         _categoryName = State(initialValue: category?.name ?? "")
         self.categoryToEdit = category
+        
     }
     
     var body: some View {
@@ -76,16 +90,7 @@ struct AddEditCategoryView: View {
             Form {
                 TextField("Category Name", text: $categoryName)
                 Button("Save") {
-                    Task {
-                        if let categoryToEdit = categoryToEdit {
-                            let updatedCategory = Category(id: categoryToEdit.id, name: categoryName)
-                            await viewModel.updateCategory(updatedCategory)
-                        } else {
-                            let newCategory = Category(id: UUID().uuidString, name: categoryName)
-                            await viewModel.addCategory(newCategory)
-                        }
-                        dismiss()
-                    }
+                    
                 }
             }
             .navigationTitle(categoryToEdit == nil ? "Add Category" : "Edit Category")
@@ -95,6 +100,24 @@ struct AddEditCategoryView: View {
                         dismiss()
                     }
                 }
+            }
+            .showError(for: $error)
+        }
+    }
+    
+    func onSave() {
+        Task {
+            do {
+                if let categoryToEdit = categoryToEdit {
+                    let updatedCategory = Category(id: categoryToEdit.id, name: categoryName)
+                    try await viewModel.updateCategory(updatedCategory)
+                } else {
+                    let newCategory = Category(id: UUID().uuidString, name: categoryName)
+                    try await viewModel.addCategory(newCategory)
+                }
+                dismiss()
+            } catch {
+                self.error = error
             }
         }
     }
