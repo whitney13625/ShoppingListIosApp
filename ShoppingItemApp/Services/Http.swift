@@ -30,7 +30,40 @@ enum HTTPMethod {
     }
 }
 
-class Http {
+protocol HttpProtocol {
+    func performRequest<T: Codable, U: Codable>(
+        _ url: URL,
+        method: HTTPMethod,
+        body: T,
+        authRequired: Bool
+    ) async throws -> U
+
+    // For requests without a body (GET, DELETE)
+    func performRequest<U: Codable>(
+        _ url: URL,
+        method: HTTPMethod,
+        authRequired: Bool
+    ) async throws -> U
+}
+
+extension HttpProtocol {
+    func performRequest<T: Codable, U: Codable>(
+        _ url: URL,
+        method: HTTPMethod,
+        body: T
+    ) async throws -> U {
+        try await performRequest(url, method: method, body: body, authRequired: true)
+    }
+    
+    func performRequest<U: Codable>(
+        _ url: URL,
+        method: HTTPMethod
+    ) async throws -> U {
+        try await performRequest(url, method: method, authRequired: true)
+    }
+}
+
+class Http: HttpProtocol {
     
     private let userSession: UserSession
     

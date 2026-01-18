@@ -4,18 +4,12 @@ import Foundation
 
 class StubAuthenticationService: AuthenticationService {
     
-    private let userSession: UserSession
-    
-    init(userSession: UserSession) {
-        self.userSession = userSession
-    }
-    
-    func login(username: String, password: String) async throws {
+    func login(username: String, password: String) async throws -> (User, String) {
         if username.lowercased() == "fail" {
             throw AuthError.invalidCredentials
         }
         try? await Task.sleep(nanoseconds: 1_000_000_000)
-        try userSession.storeSession(user: .init(id: "123"), token: "mock_token")
+        return (.init(id: "StubUser"), "myToken")
     }
     
     func logout() async throws {
