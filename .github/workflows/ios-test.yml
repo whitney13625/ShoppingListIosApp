@@ -2,28 +2,32 @@ name: iOS Unit Tests
 
 on:
   push:
-    branches: [ "main", "dev" ] # 這裡填入你的主要分支
+    branches: [ "main", "dev" ]
   pull_request:
     branches: [ "main", "dev" ]
 
 jobs:
   build-and-test:
     name: Build and Test
-    runs-on: macos-latest
-    
+    runs-on: macos-15
+   
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
       
       # 1. Assign Xcode version (Same as local environment)
-      - name: Select Xcode 16.0
-        run: sudo xcode-select -s /Applications/Xcode_16.0.app
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app
 
       # 2. Environment Information display (For Debug)
       - name: Show Xcode Version
         run: xcodebuild -version
 
-      # 3. Run Test
+      # 3. List all available simulators
+      - name: List Available Simulators
+        run: xcrun simctl list devices available
+
+      # 4. Run Test
       - name: Run Tests
         run: |
           set -o pipefail && xcodebuild test \
