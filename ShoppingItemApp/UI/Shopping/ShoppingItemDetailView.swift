@@ -9,6 +9,9 @@ struct ShoppingItemDetailView: View {
     @State private var draftItem: ShoppingItem
     @State var error: Error?
     
+    @FeatureFlag(key: Features.isShareEnabled.rawValue, defaultValue: false)
+    private var isShareenabled: Bool
+    
     private var isNewItem: Bool {
         originalItem == nil
     }
@@ -55,6 +58,15 @@ struct ShoppingItemDetailView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .frame(maxWidth: .infinity)
+                
+                
+                if isShareenabled {
+                    Button("Share") {
+                        // TODO: Do something
+                    }
+                    .buttonStyle(.automatic)
+                    .frame(maxWidth: .infinity)
+                }
             }
             .navigationTitle(isNewItem ? "Add New Item" : "Edit Item")
             .toolbar {

@@ -15,7 +15,7 @@ class AppState {
     var loginViewModel: LoginViewModel
     var shoppingListViewModel: ShoppingListViewModel
     
-    init(dependencies: DependencyContainer = .live()) {
+    init(dependencies: DependencyContainer = .stub()) {
         self.dependencies = dependencies
         self.authenticationService = dependencies.authenticationService
         self.shoppingRepository = dependencies.shoppingRepository
@@ -23,7 +23,7 @@ class AppState {
         self.shoppingListViewModel = dependencies.makeShoppingListViewModel()
         self.loginViewModel = dependencies.makeLoginViewModel()
     }
-    
+     
     var currentFlow: AppFlow {
         if isInitialLoading { return .splash }
         return dependencies.userSession.isAuthenticated ? .main : .authentication
