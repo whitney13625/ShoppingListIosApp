@@ -18,7 +18,9 @@ jobs:
 
       # 1. Assign Xcode version (Same as local environment)
       - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode_26.app
+        run: |
+          ls /Applications/Xcode*.app
+          sudo xcode-select -s /Applications/Xcode_26.app
 
       # 2. Environment Information display (For Debug)
       - name: Show Xcode Version
