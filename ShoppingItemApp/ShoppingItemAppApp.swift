@@ -12,10 +12,16 @@ struct ShoppingItemAppApp: App {
     
     @State private var appState = AppState()
     
+    private let featureManager = FeatureManager(config: [
+        Features.isAdvancedSearchEnabled.rawValue: false,
+        Features.isShareEnabled.rawValue: true
+    ])
+    
     var body: some Scene {
         WindowGroup {
             RootView()
                 .environment(appState)
+                .environment(\.featureManager, featureManager)
                 .task {
                     await appState.bootstrap()
                 }

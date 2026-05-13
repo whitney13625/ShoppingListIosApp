@@ -15,7 +15,7 @@ class AppState {
     var loginViewModel: LoginViewModel
     var shoppingListViewModel: ShoppingListViewModel
     
-    init(dependencies: DependencyContainer = .stub()) {
+    init(dependencies: DependencyContainer = .live()) {
         self.dependencies = dependencies
         self.authenticationService = dependencies.authenticationService
         self.shoppingRepository = dependencies.shoppingRepository

@@ -7,6 +7,7 @@ enum NetworkError: Error {
     case decodingError
     case unknownError
     case noData
+    case unauthenticated
     case responseError(message: String)
 }
 
@@ -145,11 +146,15 @@ class Http: HttpProtocol {
         var error: String?
     }
     
-    private let handleError: (Data, HTTPURLResponse?) throws -> Error = { data, response in
+    private func handleError(_ data: Data, _ response: HTTPURLResponse?) throws -> Error {
         guard let response else {
             return NetworkError.invalidResponse
         }
-        if let message = try? JSONDecoder().decode(ApiErrorResponse.self, from: data).error {
+        if response.statusCode == 401 {
+            try self.userSession.clear()
+            return NetworkError.unauthenticated
+        }
+        else if let message = try? JSONDecoder().decode(ApiErrorResponse.self, from: data).error {
             return NetworkError.responseError(message: message)
         }
         else {
