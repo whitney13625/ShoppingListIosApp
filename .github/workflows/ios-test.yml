@@ -30,10 +30,10 @@ jobs:
       # 4. Run Test
       - name: Run Tests
         run: |
-          IOS_VERSION=$(xcrun simctl list runtimes | grep "iOS" | tail -1 | grep -oE '[0-9]+\.[0-9]+' | head -1)
-          echo "Using iOS $IOS_VERSION"
+          UDID=$(xcrun simctl list devices available | grep "iPhone 16 (" | grep -v "Plus\|Pro\|Max" | head -1 | grep -oE '[A-F0-9-]{36}')
+          echo "Using simulator UDID: $UDID"
           set -o pipefail && xcodebuild clean build test \
             -scheme "ShoppingItemApp" \
-            -destination "platform=iOS Simulator,name=iPhone 16,OS=$IOS_VERSION" \
+            -destination "id=$UDID" \
             -resultBundlePath TestResults \
             -enableCodeCoverage YES
