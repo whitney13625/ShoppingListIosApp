@@ -13,6 +13,9 @@ xcuserdata/
 Packages/
 .swiftpm/
 
+# Claude Code
+.claude/
+
 # Environment configs
 ShoppingItemApp/Config/Environment.xcconfig
 ShoppingItemApp/Config/Environment-Local.xcconfig
